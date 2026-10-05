@@ -77,6 +77,22 @@ if (db) {
   }
   if (ROH === false) ROH = null;
 }
+// Einmaliger Umzug aus der deutschen Fassung: Dort lag die Welt im Dokument „projekt/welt“ im alten Format.
+// Das alte Format entspricht genau den internen Namen, also genügt englisch(). Das alte Dokument bleibt als Sicherung liegen.
+const ALT_DOC = "projekt/welt";
+let UMGEZOGEN = false;
+if (db && ROH === null && darfWohl) {
+  try {
+    const s = await db.doc(ALT_DOC).get(), alt = s.exists ? s.data() : null;
+    if (alt && F.isOldFormat(alt)) {
+      alt.meta = alt.meta || {}; if (!alt.meta.lang) alt.meta.lang = "de";   // alte Welten sind deutsch geschrieben
+      alt.rev = (alt.rev || 0) + 1;
+      const neu = englisch(alt);
+      await db.doc(DOC).set(neu);
+      ROH = intern(neu); UMGEZOGEN = true;
+    }
+  } catch (e) { /* kein altes Dokument oder kein Zugriff: dann beginnt die Einrichtung wie bisher */ }
+}
 if (ROH) ROH = klon(ROH);
 
 // eigen = echte Welt · neu = Besitzer, noch keine Welt · fremd = jemand anderes öffnet den Link · ohne = kein Speicher
@@ -601,6 +617,7 @@ window.WELT_EDIT = {
     if (ui && ui.scroll) { const p = document.getElementById("pane"); if (p) p.scrollTop = ui.scroll; }
     // keine Hinweisleiste mehr über der Welt (Beispielwelt/Vorlage): Infos stehen im Reiter Projekt
     if (MODUS === "neu" && !ui) einrichtung();
+    if (UMGEZOGEN) zeigeHinweis("Deine Welt wurde ins neue Format übernommen. Die alte Fassung bleibt als Sicherung gespeichert.");
     beobachte();
   }
 };

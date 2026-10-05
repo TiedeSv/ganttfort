@@ -54,7 +54,7 @@ Tasks are buildings on islands (regions). A deadline brings attackers: scouts (2
 | Task | Due | Status / notes |
 |---|---|---|
 | English data format + commands + one-time converter | 07.10.2026 | done 05.10. (hard cut; `schema.js`, `convert_world.py`) |
-| Data source (repo leads, Artifact as entry, export/import) | 07.10. | open: Artifact export/import now uses the English format |
+| Data source (repo leads, Artifact as entry, export/import) | 07.10. | done 05.10.: repo leads, the Artifact is a copy (export/import as JSON, `template/GUIDE.md` → "Repo and Claude Artifact"); old Artifact worlds (`projekt/welt`) move to `project/world` on the owner's first open, the old document stays as a backup |
 | Engine + Artifact app on the English format | 09.10. | done 05.10. (engine keeps internal names, converts on load/save) |
 | UI texts English by default, German switchable (`meta.lang`) | 10.10. | done 05.10. (`i18n.js`, `i18n-en.js`) |
 | English README, guide, agent rules, prompts | 10.10. | done 05.10.; code comments in engine/theme are still German |

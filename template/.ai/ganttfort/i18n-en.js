@@ -362,6 +362,7 @@ window.GF_TEXTS_EN = {
   "Importieren": "Import",
   "JSON": "JSON",
   "Welt importiert": "World imported",
+  "Deine Welt wurde ins neue Format übernommen. Die alte Fassung bleibt als Sicherung gespeichert.": "Your world was moved to the new format. The old version stays stored as a backup.",
   "Diese Welt ist noch im alten deutschen Format. Wandle sie einmal mit convert_world.py um.": "This world is still in the old German format. Convert it once with convert_world.py.",
   "Es fehlt die Liste „regions“ (Sektoren).": "The list \"regions\" is missing.",
   "Eigene Ganttfort-Welt anlegen": "Create your own Ganttfort world",

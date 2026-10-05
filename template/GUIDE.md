@@ -197,6 +197,19 @@ repos, languages and theme, writes your profile, the rules and the islands, crea
 
 ---
 
+## Repo and Claude Artifact
+
+Ganttfort also runs as a Claude Artifact (no repo needed, a good way to start). If you use both, **the repo leads**:
+`world.json` and `plan.mmd` in `.ai/ganttfort/` are the source, the Artifact is a copy.
+
+- **Artifact → repo:** tab *Project* → *Data* → *Copy as JSON*, save it as `.ai/ganttfort/world.json`, then run `python .ai/ganttfort/check_world.py`.
+- **Repo → Artifact:** tab *Project* → *Data* → *Import JSON*, paste `world.json`. The import replaces the Artifact's world;
+  deadlines and their moves that the Artifact already has must still be there, otherwise the import is refused.
+- An Artifact world from the old German version is moved to the new format automatically the first time its owner opens it.
+  The old version stays stored as a backup.
+
+---
+
 ## When something does not work
 
 | Problem | Solution |
