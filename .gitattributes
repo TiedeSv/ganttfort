@@ -1,0 +1,5 @@
+# Line endings stay LF everywhere (the build scripts write LF, too)
+* text=auto eol=lf
+*.woff2 binary
+*.zip binary
+*.png binary

@@ -1,0 +1,4 @@
+{
+  "chat.useAgentsMdFile": true,
+  "chat.promptFiles": true
+}

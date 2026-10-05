@@ -1,0 +1,121 @@
+
+/* =========================================================
+   Artifact-Zusätze: Laden, Bearbeiten, Dialoge
+   ========================================================= */
+:root{color-scheme:dark}
+html,body{background-color:#0d1219}
+.tabs{overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs{gap:0;padding-left:8px;padding-right:8px}
+.tabs button{padding:9px 7px 11px;font-size:12.5px}
+
+#lade{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:radial-gradient(ellipse at 40% 45%,#1c2735 0%,#0d1219 70%);color:var(--ink2,#b3c0cf);font:14px/1.5 var(--sans,system-ui,sans-serif)}
+#lade .lade-box{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding:24px;max-width:420px}
+#lade .hexlade{width:46px;height:52px;animation:drehen 2.4s linear infinite}
+@keyframes drehen{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){#lade .hexlade{animation:none}}
+
+.mini{border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--ink2);font:500 12px var(--sans);padding:4px 9px;border-radius:7px;cursor:pointer}
+.mini:hover{color:var(--ink);border-color:rgba(255,255,255,.2)}
+.mini:focus-visible,.knopf:focus-visible{outline:2px solid var(--cyan);outline-offset:1px}
+.mini.haupt{background:rgba(94,230,255,.14);border-color:rgba(94,230,255,.4);color:var(--ink)}
+.mini.gut{background:rgba(109,255,176,.12);border-color:rgba(109,255,176,.4);color:var(--ink)}
+.mini:disabled{opacity:.4;cursor:default}
+.aktionen{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px}
+.kopfzeile-a{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.kopfzeile-a h2,.kopfzeile-a h3{margin-bottom:6px}
+.notiz{white-space:pre-wrap;font-size:13.5px;color:var(--ink2);background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.list li[data-e]{cursor:pointer}
+
+.banner{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:8;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  max-width:min(620px,calc(100vw - 32px));padding:8px 10px 8px 14px;border-radius:12px;background:var(--glass);border:1px solid rgba(255,179,71,.45);
+  backdrop-filter:blur(8px);font-size:13px;color:var(--ink2)}
+.banner b{color:var(--amber);font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase}
+
+/* Frist-Flaggen und Meilenstein-Rauten im Plan ziehen */
+.flagge[data-zieh]{cursor:ew-resize;transform:translateX(var(--dx,0px))}
+.flagge[data-zieh]::before{content:"";position:absolute;left:-6px;right:-8px;top:-3px;bottom:-3px}
+.raute[data-zieh]{cursor:ew-resize;transform:translateX(var(--dx,0px)) rotate(45deg)}
+.flagge.zieht,.raute.zieht{z-index:5;filter:drop-shadow(0 0 4px #ffb347)}
+.flagge.zieht::after{border-left-color:#ffb347}
+[data-tipp]:not([data-tipp=""])::before{content:attr(data-tipp)}
+.raute.zieht[data-tipp]:not([data-tipp=""])::before{position:absolute;left:14px;top:-16px;transform:rotate(-45deg);font:600 11px var(--mono);color:#ffb347;white-space:nowrap}
+.flagge.zieht[data-tipp]:not([data-tipp=""])::before{position:absolute;left:10px;top:-14px;bottom:auto;right:auto;font:600 11px var(--mono);color:#ffb347;white-space:nowrap;background:none}
+
+/* Dialoge */
+.dlg-hg{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:16px;background:rgba(5,8,12,.55);backdrop-filter:blur(3px)}
+.dlg{width:min(560px,100%);max-height:calc(100vh - 32px);display:flex;flex-direction:column;background:#111822;border:1px solid rgba(255,255,255,.12);
+  border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5);color:var(--ink)}
+.dlg-kopf{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 18px 6px}
+.dlg-kopf h2{font:600 20px/1.2 var(--head);margin:0;text-wrap:balance}
+.dlg-x{border:0;background:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 8px;border-radius:6px}
+.dlg-x:hover{color:var(--ink)}
+.dlg-inhalt{padding:6px 18px 8px;overflow:auto;display:flex;flex-direction:column;gap:12px;min-height:0}
+.dlg-inhalt .lead{margin:0;color:var(--ink2)}
+.dlg-inhalt p{margin:0}
+.dlg-fehler{margin:0 18px;padding:8px 12px;border-radius:8px;background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.4);color:#ffc2c2;font-size:13px}
+.dlg-fuss{display:flex;align-items:center;gap:8px;padding:12px 18px 16px;flex-wrap:wrap}
+.dlg-fuss .platz{flex:1}
+.knopf{border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--ink);font:500 13.5px var(--sans);padding:8px 14px;border-radius:9px;cursor:pointer}
+.knopf:hover{border-color:rgba(255,255,255,.22)}
+.knopf.haupt{background:var(--cyan);border-color:var(--cyan);color:#071016;font-weight:600}
+.knopf.haupt:disabled{opacity:.6}
+.knopf.gefahr{color:#ff9a9a;border-color:rgba(255,107,107,.35)}
+.feld{display:flex;flex-direction:column;gap:5px;min-width:0}
+.feld .lbl{font:500 10.5px/1.2 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.feld .lbl small{letter-spacing:0;text-transform:none;font:400 11px var(--sans);opacity:.8}
+.feld .zeile{display:flex;align-items:center;gap:10px;min-height:36px}
+.dlg input:not([type=checkbox]):not([type=radio]),.dlg select,.dlg textarea{width:100%;background:rgba(0,0,0,.28);color:var(--ink);border:1px solid rgba(255,255,255,.12);
+  border-radius:9px;padding:8px 10px;font:14px var(--sans);color-scheme:dark}
+.dlg textarea{resize:vertical;line-height:1.45}
+.dlg textarea.mono{font:12px/1.4 var(--mono)}
+.dlg input:focus,.dlg select:focus,.dlg textarea:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 2px rgba(94,230,255,.15)}
+.spalten{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.wahl{display:flex;gap:6px;flex-wrap:wrap}
+.wahl label{display:flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:13.5px}
+.wahl label:has(input:checked){border-color:var(--cyan);background:rgba(94,230,255,.08)}
+.wahl input{accent-color:var(--cyan)}
+.haken{max-height:180px;overflow:auto;border:1px solid var(--line);border-radius:9px;padding:4px}
+.haken label{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:5px 8px;border-radius:6px;cursor:pointer;font-size:13.5px}
+.haken label:hover{background:rgba(255,255,255,.04)}
+.haken label small{color:var(--muted);font-size:11.5px;white-space:nowrap}
+.haken input{accent-color:var(--cyan)}
+.dlg .hakensuche{margin-bottom:6px;padding:6px 10px !important;font-size:13px !important}
+.arten{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
+.arten label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted)}
+.dlg .note,.dlg .look{font-size:13px}
+
+@media (max-width:720px){
+  .panel{top:auto;left:8px;right:8px;width:auto;height:46vh;bottom:8px}
+  .zeit,.plan,.hint,.werkzeug{display:none}
+  .hud{left:16px;top:14px}.hud h1{font-size:22px}.counts{flex-wrap:wrap}
+  .banner{top:auto;bottom:calc(46vh + 16px)}
+  .spalten,.arten{grid-template-columns:1fr}
+}
+[hidden]{display:none!important}
+
+/* Seitenleiste einklappen */
+.panel{transition:transform .28s cubic-bezier(.3,.7,.3,1)}
+.panel-griff{position:absolute;left:-42px;top:14px;width:32px;height:32px;display:grid;place-items:center;border-radius:9px;cursor:pointer;
+  background:var(--glass);border:1px solid var(--line);color:var(--ink2);backdrop-filter:blur(8px);padding:0}
+.panel-griff:hover{color:var(--ink);border-color:rgba(255,255,255,.22)}
+.panel-griff:focus-visible{outline:2px solid var(--cyan);outline-offset:1px}
+.panel-griff svg{width:13px;height:13px;transition:transform .28s}
+body.panel-zu .panel{transform:translateX(calc(100% + 16px))}
+body.panel-zu .panel-griff svg{transform:rotate(180deg)}
+body.panel-zu .zeit,body.panel-zu .werkzeug{right:60px}
+body.panel-zu .plan{right:16px}
+@media (prefers-reduced-motion:reduce){.panel,.panel-griff svg{transition:none}}
+@media (max-width:720px){
+  .panel-griff{left:auto;right:10px;top:-42px}
+  body.panel-zu .panel{transform:translateY(calc(100% + 16px))}
+  body.panel-zu .panel-griff svg{transform:rotate(-90deg)}
+  .panel-griff svg{transform:rotate(90deg)}
+  body.panel-zu .banner{bottom:60px}
+}
+
+/* Hinweisleiste rechts oben über der Welt: nicht über dem Projektnamen und nicht über dem Knopf der Seitenleiste */
+.banner{left:auto;right:calc(452px + 64px);transform:none;max-width:min(560px,calc(100vw - 452px - 500px))}
+body.panel-zu .banner{left:auto;right:64px;max-width:min(620px,calc(100vw - 560px))}
+.panel-griff{z-index:9}
+@media (max-width:720px){ .banner{left:50%;right:auto;transform:translateX(-50%);max-width:calc(100vw - 32px)} body.panel-zu .banner{left:50%;right:auto} }

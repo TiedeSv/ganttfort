@@ -1,0 +1,11 @@
+# Build output (python build/build_all.py)
+build/dist/
+release/
+__pycache__/
+*.pyc
+# Your own world data never belongs in this repo
+template/.ai/ganttfort/world.json
+template/.ai/ganttfort/world-data.js
+template/.ai/ganttfort/plan.mmd
+template/.ai/ganttfort/rules.md
+template/.ai/ganttfort/profile.md
