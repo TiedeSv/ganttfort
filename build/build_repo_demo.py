@@ -54,5 +54,5 @@ FOOT = """);
 
 targets = sys.argv[1:] or [str(HERE.parent / "template" / ".ai" / "ganttfort" / "world-demo.js")]
 for t in targets:
-    pathlib.Path(t).write_text(HEAD + literal + FOOT, encoding="utf-8")
+    pathlib.Path(t).write_text(HEAD + literal + FOOT, encoding="utf-8", newline="\n")
     print("written:", t)
