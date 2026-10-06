@@ -32,7 +32,8 @@ This file is for working **on** Ganttfort. The file `template/CLAUDE.md` is a di
 | `build/examples/tour.js` | Guided tour for the public demo (`build/dist/tour/`) |
 | `build/tools/` | `collect_texts.js` / `collect_owner.js` list interface texts per state (find untranslated German), `german_left.py` filters them |
 | `build/src/` | Artifact app (`app.js`), shell, fonts, license files |
-| `release/` | Build output: `ganttfort.html`, `ganttfort-template.zip`, `ganttfort-update-N.zip` (not committed) |
+| `skill/SKILL.md` | The Ganttfort skill (Claude Code and claude.ai chat). `build_all.py` packs it with the Artifact files and the template zip into `release/ganttfort-skill.zip` |
+| `release/` | Build output: `ganttfort.html`, `ganttfort-template.zip`, `ganttfort-skill.zip`, `ganttfort-update-N.zip` (not committed) |
 
 ## Build and check
 ```
@@ -58,8 +59,8 @@ Tasks are buildings on islands (regions). A deadline brings attackers: scouts (2
 | Engine + Artifact app on the English format | 09.10. | done 05.10. (engine keeps internal names, converts on load/save) |
 | UI texts English by default, German switchable (`meta.lang`) | 10.10. | done 05.10. (`i18n.js`, `i18n-en.js`) |
 | English README, guide, agent rules, prompts | 10.10. | done 05.10.; code comments in engine/theme are still German |
-| One skill for Claude Code and claude.ai chat | 11.10. | open. The old skill expects the German format and `projektwelt-paket.zip` – do not use it any more. |
+| One skill for Claude Code and claude.ai chat | 11.10. | done 06.10.: `skill/SKILL.md` → `release/ganttfort-skill.zip` (repo setup, new Artifact, change a world, update an Artifact, repo ↔ Artifact). Still to try once on claude.ai. The old `projektwelt` skill expects the German format – do not use it any more. |
 | Public repo (license, README, sponsor links, releases) | 13.10. | open: GitHub Sponsors + Ko-fi via `.github/FUNDING.yml`; GitHub Action that builds `ganttfort.html` per release. `LICENSE`/`THIRD_PARTY_NOTICES.md` already moved to `template/.ai/ganttfort/`. |
-| Tour world as public live demo | 14.10. | English tour (`build/dist/tour/`); the Artifact version still loads fonts from Google Fonts – embed there too. |
+| Tour world as public live demo | 14.10. | English tour (`build/dist/tour/`); fonts and three.js are shipped with the Artifact version since 06.10. (no network requests). Open: publish it. |
 
 The roadmap is also kept as a Ganttfort world in a claude.ai Artifact owned by the maintainer; update it from a claude.ai session, not from here.

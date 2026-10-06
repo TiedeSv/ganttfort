@@ -20,7 +20,7 @@ Ganttfort turns a project plan into a 3D medieval island world: every task is a 
 python build/build_all.py
 ```
 
-Creates `release/ganttfort.html` (the whole world in one file, works offline) and `release/ganttfort-template.zip`. Only Python 3.8+ is needed.
+Creates `release/ganttfort.html` (the whole world in one file, works offline), `release/ganttfort-template.zip` (what goes into your repo) and `release/ganttfort-skill.zip` (a skill for Claude Code and the claude.ai chat that sets up Ganttfort in a repo or as a Claude Artifact). Only Python 3.8+ is needed.
 
 Try it: open `template/.ai/ganttfort/world.html?demo` in a browser. The interface is English; `&lang=de` switches it to German.
 

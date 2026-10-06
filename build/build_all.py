@@ -8,6 +8,7 @@
 3. build/dist/tour/      -> copy plus the guided tour (build/examples/tour.js), the public live demo
 4. build_single_file.py  -> build/dist/single/ganttfort.html (everything in one file, works offline)
 5. release/              -> ganttfort.html, ganttfort-template.zip (the template folder),
+                            ganttfort-skill.zip (skill/SKILL.md + the Artifact files + the template zip),
                             with --update N: ganttfort-update-N.zip (without your own files)
 
 Only needs Python 3.8+. dist/ and release/ are build output and not checked in.
@@ -53,6 +54,18 @@ def copy_artifact(name, title, extra_script=None):
     idx.write_text(html, encoding="utf-8")
 
 
+def build_skill():
+    """release/ganttfort-skill.zip: one skill for Claude Code and the claude.ai chat (folder ganttfort/ inside)."""
+    target = RELEASE / "ganttfort-skill.zip"
+    target.unlink(missing_ok=True)
+    with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as z:
+        z.write(ROOT / "skill" / "SKILL.md", "ganttfort/SKILL.md")
+        for p in sorted((DIST / "artifact").rglob("*")):
+            if p.is_file():
+                z.write(p, "ganttfort/artifact/" + p.relative_to(DIST / "artifact").as_posix())
+        z.write(RELEASE / "ganttfort-template.zip", "ganttfort/ganttfort-template.zip")
+
+
 def main():
     run(HERE / "build_artifact.py")
     copy_artifact("roadmap", "Ganttfort Roadmap")
@@ -61,6 +74,7 @@ def main():
     RELEASE.mkdir(exist_ok=True)
     shutil.copy(DIST / "single" / "ganttfort.html", RELEASE / "ganttfort.html")
     zip_folder(RELEASE / "ganttfort-template.zip", VORLAGE)
+    build_skill()
 
     if "--update" in sys.argv:
         n = sys.argv[sys.argv.index("--update") + 1]
@@ -70,7 +84,7 @@ def main():
             for d in UPDATE_DATEIEN:
                 z.write(VORLAGE / d, d)
         print("repo update:", target)
-    for p in [RELEASE / "ganttfort-template.zip", RELEASE / "ganttfort.html"]:
+    for p in [RELEASE / "ganttfort-template.zip", RELEASE / "ganttfort-skill.zip", RELEASE / "ganttfort.html"]:
         print(f"{p.name}: {p.stat().st_size/1024:.0f} KB")
 
 
