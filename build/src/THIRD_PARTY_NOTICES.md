@@ -4,8 +4,8 @@ The project's own code (engine, medieval theme, app, example worlds) is licensed
 
 | Component | Version | License | How it is included |
 |---|---|---|---|
-| [three.js](https://github.com/mrdoob/three.js) | 0.149.0 | MIT | loaded at runtime from cdn.jsdelivr.net |
-| Space Grotesk, Inter, JetBrains Mono, Cinzel | – | SIL Open Font License 1.1 | loaded at runtime from Google Fonts |
+| [three.js](https://github.com/mrdoob/three.js) | 0.149.0 | MIT | `three.min.js`, shipped with the Artifact |
+| Space Grotesk, Inter, JetBrains Mono, Cinzel | – | SIL Open Font License 1.1 | `fonts/*.woff2`, shipped with the Artifact |
 
 All buildings, figures and landscapes are built in code from simple shapes; there are no third-party images, models, icons or sounds.
 "Claude" is a trademark of Anthropic; this project is independent.

@@ -1,6 +1,7 @@
 """Builds the Artifact version of Ganttfort from .ai/ganttfort/world.html.
 
-dist/index.html        small shell (title, fonts, three.js from the CDN, app.js)
+dist/index.html        small shell (title, local fonts, three.js, app.js) – loads nothing from the network
+dist/three.min.js      three.js, dist/fonts/ the fonts (both from template/.ai/ganttfort/lib/)
 dist/world.css         style of the world + additions for editing
 dist/world-engine.js   the world itself (from world.html, with hooks for editing)
 dist/app.js            storage (db), setup, editing
@@ -122,6 +123,9 @@ shutil.copy(QUELLE / "themes" / "medieval.js", DIST / "themes" / "medieval.js")
 for f in ("schema.js", "i18n.js", "i18n-en.js"):
     shutil.copy(QUELLE / f, DIST / f)
 shutil.copy(HIER / "src" / "index.html", DIST / "index.html")
+# three.js and fonts travel with the Artifact: no requests to a CDN or Google Fonts
+shutil.copy(QUELLE / "lib" / "three.min.js", DIST / "three.min.js")
+shutil.copytree(QUELLE / "lib" / "fonts", DIST / "fonts")
 shutil.copy(HIER / "src" / "THIRD_PARTY_NOTICES.md", DIST / "THIRD_PARTY_NOTICES.md")
 shutil.copy(HIER / "src" / "LICENSE", DIST / "LICENSE")
 print("gebaut:", sorted(str(p.relative_to(DIST)) for p in DIST.rglob("*") if p.is_file()))

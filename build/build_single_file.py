@@ -73,8 +73,9 @@ def main():
     # Hülle: externe Verweise raus
     html = re.sub(r'<link rel="preconnect"[^>]*>\n?', "", html)
     html = re.sub(r'<link rel="stylesheet" href="https://fonts\.googleapis\.com[^>]*>\n?', "", html)
+    html = re.sub(r'<link rel="stylesheet" href="fonts/fonts\.css"[^>]*>\n?', "", html)   # faces are inlined below
     html = html.replace('<link rel="stylesheet" href="world.css">', "<style>\n" + faces + css + "\n</style>")
-    html = html.replace('<script charset="utf-8" src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>',
+    html = html.replace('<script charset="utf-8" src="three.min.js"></script>',
                         "<script>" + sicher(three) + "</script>")
     html = html.replace('<script charset="utf-8" src="demo.js"></script>', "<script>" + sicher(demo) + "</script>")
     for f in ("schema.js", "i18n-en.js", "i18n.js"):
