@@ -349,7 +349,7 @@ function fristDialog(art, id, vorschlag) {
       const L = I.lage(Z, I.zeit());
       if (["spaeher", "lager", "belagerung", "schlacht"].includes(L.phase))
         warnung = `<div class="note"><b>Die Angreifer sind schon da (${esc(I.TX[L.phase] || L.phase)}).</b> Du kannst die Frist verschieben, aber es bleibt sichtbar: Ihr Belagerungsgerät bleibt am Feld liegen, und im Plan steht die alte Frist.</div>`;
-      else if (L.phase === "ruhe" && L.naechste) warnung = `<p class="muted">Noch keine Späher in Sicht: Bis ${esc(I.kurzDatum(I.tagVon(L.naechste)))} ist die Verschiebung frei und hinterlässt keine Spuren.</p>`;
+      else if (L.phase === "ruhe" && L.naechste) warnung = `<p class="muted">Die Frist naht noch nicht: Bis ${esc(I.kurzDatum(I.tagVon(L.naechste)))} ist die Verschiebung frei und hinterlässt keine Spuren.</p>`;
     }
   }
   const inhalt = `<p class="lead">${esc(o.titel)}</p>
@@ -357,7 +357,7 @@ function fristDialog(art, id, vorschlag) {
     ${warnung}
     <label class="feld"><span class="lbl">${alt ? "Neue Frist" : "Frist"}</span><input type="date" name="d" min="${heute()}" value="${esc(vorschlag || (alt && alt >= heute() ? alt : plusTage(heute(), 7)))}" required></label>
     ${alt ? `<label class="feld"><span class="lbl">Grund <small>(optional, steht im Verlauf)</small></span><input name="grund" maxlength="200" placeholder="Warum verschiebst du?"></label>` : ""}
-    <p class="muted">Entschieden wird am Tag nach der Frist um 16:00. Späher kommen einige Tage vorher.</p>`;
+    <p class="muted">Abgabe ist am Tag nach der Frist um 16:00. „Frist naht“ beginnt einige Tage vorher.</p>`;
   const form = dialog(alt ? "Frist verschieben" : "Frist setzen", inhalt, `<span class="platz"></span><button type="button" class="knopf" data-dlg="zu">Abbrechen</button><button type="submit" class="knopf haupt">${alt ? "Verschieben" : "Setzen"}</button>`);
   form.onsubmit = e => {
     e.preventDefault();

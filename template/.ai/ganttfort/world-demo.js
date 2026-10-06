@@ -11,8 +11,8 @@
   const W=fix({
     meta: { project: "Example · Harbor Town App", as_of: "@0", theme: "medieval", lang: "en" },
     report: "A made-up project: Gullhaven gets an app for the ferry timetable, tickets and a town map. " +
-      "Today accessibility is under siege, the battle over the traffic peak is decided at 16:00 and scouts circle over the live positions. " +
-      "The storm warnings burned down three days ago; the trial run at the town office was held.",
+      "Accessibility is due today, the traffic peak is overdue with the hand-in at 16:00, and the live positions have their deadline ahead. " +
+      "The storm warnings missed their hand-in three days ago; the trial run at the town office was held.",
     regions: [
       { id: "app", name: "App screens", biome: "meadow", description: "Screens, controls, notifications" },
       { id: "server", name: "Server & interfaces", biome: "rock", description: "Interfaces, live data, load" },
@@ -63,17 +63,17 @@
 
       // Work in progress with a deadline: every phase of an attack once
       T("tickets", "app", "feature", "in_progress", "Buy ferry tickets in the app", { started: "@-10", due: "@9",
-        note: "Deadline in nine days: still quiet, the scouts only come a week before." }),
+        note: "Deadline in nine days: still on track, \"deadline ahead\" and the scouts only come a week before." }),
       T("live-positions", "server", "api", "in_progress", "Live positions of the ferries", { started: "@-8", due: "@4", after: ["api-timetable"],
-        note: "Scouts are circling: the deadline is getting close." }),
+        note: "Deadline ahead: scouts are circling." }),
       T("footpaths", "map", "feature", "in_progress", "Footpaths to the piers", { started: "@-9", due: "@1",
-        note: "Camp: a war airship lies at the island edge, the sky turns red." }),
+        note: "Final stretch: a war airship anchors at the island edge and waits." }),
       T("accessibility", "quality", "test", "in_progress", "Check accessibility", { started: "@-6", due: "@0", critical: true,
-        note: "Siege: today is the deadline." }),
+        note: "Due today: the building site is under siege." }),
       T("traffic-peak", "server", "performance", "in_progress", "Server survives the rush at the harbor festival", { started: "@-7", due: "@-1",
-        note: "Battle: the deadline was yesterday. If the task is done today by 16:00, the battle is won, otherwise the building burns down." }),
+        note: "Overdue: the deadline was yesterday. If the task is done by the hand-in today at 16:00, it is delivered on time, otherwise the building burns down." }),
       T("storm-warning", "data", "feature", "in_progress", "Show storm warnings", { started: "@-14", due: "@-4",
-        note: "Deadline missed: burned down three days ago at 16:00. The ruin stays, work continues at the island edge." }),
+        note: "Hand-in missed: burned down three days ago at 16:00. The ruin stays, work continues at the island edge." }),
       T("read-aloud", "app", "feature", "in_progress", "Read departures aloud", { started: "@-15", due: "@11",
         moved: [{ on: "@-3", from: "@-2", to: "@11", reason: "The platform's speech output came later" }],
         note: "Deadline moved: the attackers withdrew, their traces stay visible for a while." }),

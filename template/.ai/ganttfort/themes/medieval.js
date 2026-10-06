@@ -1494,15 +1494,28 @@ const einheiten={
     const fl=H.mesh(H.GEO.box,ROT,.02,.012,.002,-.07,.035,0); g.add(fl); g.userData.fluegel=t=>{ fl.rotation.x=Math.sin(t*4)*.3; };
     return g;
   },
-  geschuetz(H){                                       // Katapult
-    const g=new H.THREE.Group(); H.box(g,P.holz2,.08,.012,.05,0,0,0);
-    [-1,1].forEach(b=>g.add(H.mesh(H.GEO.box,P.holz2,.01,.06,.01,0,.035,b*.02)));
-    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>g.add(H.mesh(H.GEO.cyl8,P.balken,.012,.006,.012,a*.03,.006,b*.027,0,Math.PI/2)));
-    const tu=new H.THREE.Group(); tu.position.y=.05; g.add(tu);
-    tu.add(H.mesh(H.GEO.box,P.holz,.1,.008,.008,.02,.02,0,0,0,.6)); tu.add(H.mesh(H.GEO.cyl8,P.holz2,.012,.01,.012,.06,.05,0));
-    g.add(H.mesh(H.GEO.ico,P.stein3,.012,.012,.012,-.03,.02,0));
-    const blitz=H.halo(tu,.06,.06,0,.1,0xff8a3a,0);
-    Object.assign(g.userData,{turm:tu,blitz});
+  geschuetz(H){                                       // Katapult (Mangonel), wirft nach +x: Fahrgestell auf Rädern, Torsionsachse hinten unten,
+                                                      // Wurfarm mit Schale und Stein liegt gespannt nach hinten, schnellt beim Wurf gegen den gepolsterten Querbalken; Winde zum Spannen
+    const g=new H.THREE.Group(), f=new H.THREE.Group();                                                      // f: feste Teile, werden zu einem Mesh verschmolzen (weniger Draw-Calls)
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>f.add(H.mesh(H.GEO.cyl8,P.balken,.011,.006,.011,a*.032,.011,b*.031,0,Math.PI/2)));   // Räder
+    [-1,1].forEach(b=>H.box(f,P.holz2,.094,.01,.01,0,.012,b*.024));                                           // Längsbalken
+    [-1,1].forEach(a=>H.box(f,P.holz2,.01,.008,.058,a*.04,.014,0));                                           // Querbalken unten
+    [-1,1].forEach(b=>{ H.box(f,P.holz2,.008,.07,.008,.006,.02,b*.024);                                      // Pfosten vorn
+      f.add(H.mesh(H.GEO.box,P.holz2,.006,.074,.006,-.0155,.0535,b*.024,0,0,-.554)); });                     // Streben nach hinten
+    H.box(f,P.holz,.01,.01,.058,.006,.08,0);                                                                   // Anschlag-Querbalken
+    H.box(f,0x9a7a52,.005,.014,.022,.0,.078,0);                                                               // Polster (Strohsack)
+    f.add(H.mesh(H.GEO.cyl8,0x6a5440,.009,.05,.009,-.014,.022,0,0,Math.PI/2));                                // Torsionsbündel (Seile)
+    const arm=new H.THREE.Group(); arm.position.set(-.014,.022,0); g.add(arm);
+    arm.add(H.mesh(H.GEO.box,P.holz,.007,.09,.007,0,.045,0));                                                 // Wurfarm
+    arm.add(H.mesh(H.GEO.cyl8,P.holz2,.013,.007,.013,0,.091,0));                                              // Schale
+    const stein=H.mesh(H.GEO.dode,P.stein3,.008,.008,.008,0,.098,0); arm.add(stein);
+    const winde=new H.THREE.Group(); winde.position.set(-.034,.019,0); g.add(winde);                          // Winde mit Speichen außen
+    winde.add(H.mesh(H.GEO.cyl8,P.balken,.005,.07,.005,0,0,0,0,Math.PI/2));
+    [-1,1].forEach(b=>{ winde.add(H.mesh(H.GEO.box,P.holz,.024,.003,.002,0,0,b*.034)); winde.add(H.mesh(H.GEO.box,P.holz,.003,.024,.002,0,0,b*.034)); });
+    [[-.062,.006,.012],[-.064,.006,-.01],[-.06,.016,0]].forEach(([x,y,z])=>f.add(H.mesh(H.GEO.dode,P.stein2,.008,.008,.008,x,y,z)));   // Steinvorrat
+    f.userData.flach=true; g.add(H.bake(f,()=>.5));
+    const R=1.2; arm.rotation.z=R;
+    Object.assign(g.userData,{arm,stein,winde,armRuhe:R,armWurf:-.13});
     return g;
   },
   lager(H,gross,geschuetz){                           // Kriegsluftschiff der Räuber: schwebt am Inselrand, Katapulte an Deck, Seile hängen herab (Nase nach +x)
@@ -1549,10 +1562,13 @@ const einheiten={
       const sg=new H.THREE.Group(); sg.position.set((x0+x1)/2,0,(z0+z1)/2); sg.rotation.y=-Math.atan2(z1-z0,x1-x0); g.add(sg);
       const inn=new H.THREE.Group(); sg.add(inn);
       H.box(inn,dunkel,L,.012,.05,0,0,0); H.box(inn,wand,L,.085,.036,0,.01,0);
-      for(let k=0;k<Math.round(L/.04);k++) H.box(inn,wand,.02,.018,.038,-L/2+.012+k*L/Math.round(L/.04),.095,0);         // Zinnen
+      const zinnen=[]; for(let k=0;k<Math.round(L/.04);k++) zinnen.push(H.box(inn,wand,.02,.018,.038,-L/2+.012+k*L/Math.round(L/.04),.095,0));   // Zinnen
       for(let k=0;k<5;k++) H.box(inn,P.stein3,.03+r()*.03,.008,.002,-L/2+r()*L,.02+r()*.06,-.019);                       // Fugen
       if(i===1){ H.box(inn,0x241c18,.05,.055,.004,0,.01,-.019); H.box(inn,P.holz2,.056,.006,.006,0,.065,-.02); }            // Tor
-      segs.push({sg,inn,schwelle:.15+r()*.75,k:1});
+      const schutt=new H.THREE.Group(); schutt.visible=false; sg.add(schutt);                                             // Trümmer vor der beschädigten Mauer
+      for(let k=0;k<6;k++) schutt.add(H.mesh(H.GEO.box,k%2?wand:dunkel,.016+r()*.012,.01+r()*.008,.014+r()*.01,(r()-.5)*L*.7,.005+r()*.006,.03+r()*.025,r()*3,(r()-.5)*.6,(r()-.5)*.6));
+      const bruch=Math.floor(r()*zinnen.length);                                                                      // Bresche: hier fehlen Zinnen und ein Stück Mauerkrone
+      segs.push({sg,inn,zinnen,schutt,bruch,schwelle:.15+r()*.75,k:1});
     }
     const tuerme=[];
     for(let i=0;i<6;i++){ const [x,z]=ecke(i), tg=new H.THREE.Group(); tg.position.set(x*.98,0,z*.98); g.add(tg);
@@ -1565,9 +1581,11 @@ const einheiten={
     Object.assign(g.userData,{R:apo,bleibt:false,
       setze(st,blitz,t,dt){
         if(auf===null) auf=t; const u=Math.min(1,(t-auf)*.5), ein=u*u*(3-2*u);
-        segs.forEach((s,i)=>{ const ziel=st<s.schwelle?.38:1; s.k+=(ziel-s.k)*Math.min(1,Math.max(dt,.05)*1.5);
-          s.inn.scale.y=Math.max(.02,ein*s.k); s.inn.rotation.x=(1-s.k)*.25; s.inn.position.y=blitz>.15?(Math.sin(t*60+i)*.003):0; });
-        tuerme.forEach(o=>{ const ziel=st<o.schwelle?.45:1; o.k+=(ziel-o.k)*Math.min(1,Math.max(dt,.05)*1.2); o.tg.scale.y=Math.max(.02,ein*o.k); o.tg.rotation.z=(1-o.k)*.3; });
+        // Beschädigt wird eine Mauer nicht versenkt oder gekippt, sondern bekommt eine Bresche: Zinnen fallen, die Krone sinkt etwas, Trümmer liegen davor (kein Zittern)
+        segs.forEach(s=>{ const kaputt=st<s.schwelle, ziel=kaputt?.78:1; s.k+=(ziel-s.k)*Math.min(1,Math.max(dt,.05)*1.5);
+          s.inn.scale.y=Math.max(.02,ein*s.k); s.inn.rotation.x=0; s.inn.position.y=0;
+          s.zinnen.forEach((z,k)=>{ z.visible=!kaputt||Math.abs(k-s.bruch)>1; }); s.schutt.visible=kaputt&&ein>=1; });
+        tuerme.forEach(o=>{ const ziel=st<o.schwelle?.82:1; o.k+=(ziel-o.k)*Math.min(1,Math.max(dt,.05)*1.2); o.tg.scale.y=Math.max(.02,ein*o.k); o.tg.rotation.z=0; });
       },
       treffer(A){ const W=g.getWorldPosition(new H.THREE.Vector3()), d=new H.THREE.Vector3(A.x-W.x,0,A.z-W.z).normalize();
         return new H.THREE.Vector3(W.x+d.x*apo*1.02+(Math.random()-.5)*.08,.04+Math.random()*.06,W.z+d.z*apo*1.02+(Math.random()-.5)*.08); }
@@ -1776,9 +1794,9 @@ window.THEMA={
     leg_ruine0:"Glimmt und raucht. Weitergebaut wird ab dem nächsten Morgen am Inselrand.", leg_ruine2:"Erstes Grün zwischen den verkohlten Balken.",
     leg_ruine4:"Fast wieder Wiese. Das Sühnekreuz bleibt.", leg_meilenstein_name:"Meilenstein · Burg", leg_meilenstein:"Hauptziel der großen Welle. Gehalten: goldene Banner.",
     leg_landschaft:"Wiesen, Wälder, Äcker, Teiche, Felsen",
-    spaeher:"Kundschafter", lager:"Heerlager", belagerung:"Belagerung", schlacht:"Schlacht", verteidigt:"Gehalten", brennt:"Steht in Flammen",
-    abzug:"Räuber ziehen ab", armee:"Ritter", grossbau:"Kathedrale", abschnitt:"Bauabschnitt", abschnitte:"Bauabschnitte",
-    phasen:{ spaeher:"Kundschafter gesichtet", lager:"Kriegsluftschiff am Inselrand", sieg:"Ritter reiten aus", verteidigt:"Gehalten", abzug:"Räuber ziehen ab", brand:"Steht in Flammen" } },
+    // Phasennamen kommen aus der Projektsprache des Kerns (Frist naht, Endspurt, Heute fällig, Überfällig, Abgabe)
+    armee:"Ritter", grossbau:"Kathedrale", abschnitt:"Bauabschnitt", abschnitte:"Bauabschnitte",
+  },
   schuss:{ feind:0xffa060, geschuetz:0xff7a2a, eigen:0xfff0c8, treffer_feind:0xff8a4a, treffer_eigen:0xfff4d0, bogen:.08, laenge:.09 },
   bau, einheiten, natur
 };

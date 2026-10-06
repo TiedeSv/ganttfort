@@ -272,6 +272,7 @@ body.panel-zu .plan{right:16px}
 .iwarn{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;font:700 11px/1 var(--mono);color:#1a1206;cursor:help}
 .iwarn.w1{background:#f0c040}
 .iwarn.w2{background:#ff4a3a;color:#fff;animation:iwarnPuls 1.1s ease-in-out infinite}
+body.ruhig .iwarn,body.ruhig .pin,body.ruhig .evt{animation:none!important}
 @keyframes iwarnPuls{0%,100%{box-shadow:0 0 0 0 rgba(255,74,58,.7)}50%{box-shadow:0 0 0 6px rgba(255,74,58,0)}}
 .gname{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;font:500 10.5px/1.2 var(--body,inherit);color:#eef3f8;background:rgba(10,14,20,.72);
   border:1px solid rgba(255,255,255,.1);padding:2px 6px;border-radius:5px;white-space:nowrap;will-change:transform}
@@ -475,7 +476,7 @@ const SPERRE=new Set((TH.gesperrteTypen||[]).filter(k=>k!=="sonst"));        // 
   if(TH.schrift&&!document.querySelector("link[data-lokale-schriften]")){ const l=document.createElement("link"); l.rel="stylesheet"; l.href=TH.schrift; document.head.appendChild(l); }
 })();
 const SZ=Object.assign({nebel:0x121a25, gitter:[0x2b5a70,0x1c3442], hemi:[0x9cc0ff,0x1a1a22,.55], sonne:[0xd2e2ff,1.35], gegenlicht:[0xffd2b0,.3]},TH.szene||{});
-const TX=Object.assign({spaeher:"Späher",lager:"Lager",belagerung:"Belagerung",schlacht:"Schlacht",verteidigt:"Verteidigt",brennt:"Brennt nieder",
+const TX=Object.assign({spaeher:"Frist naht",lager:"Endspurt",belagerung:"Heute fällig",schlacht:"Überfällig",verteidigt:"Rechtzeitig fertig",brennt:"Abgabe verpasst",
   abzug:"Angreifer ziehen ab",armee:"Armee",grossbau:"Großbau",abschnitt:"Stockwerk",abschnitte:"Stockwerke",
   leg_fertig:"Gebautes Feld, grüner Rand",leg_baustelle:"Portalkran, Drohnen, Bauplan wird gescannt",leg_geplant:"Hologramm: geplant, noch nicht begonnen",
   leg_verworfen:"Stillgelegt: das halb gebaute Gebäude dieser Aufgabe, abgesperrt. Wird nicht angegriffen, lässt sich verschieben.",
@@ -1448,7 +1449,7 @@ function bake(root, r, mats){
           continue; }
         for(let k=0;k<3;k++){
           // Kontaktschatten: Teile werden zum Boden hin dunkler (nicht Kachel, nicht Leuchtteile)
-          const ao=(o.userData.kachel||o.userData.glow)?1:.58+.42*Math.min(1,Math.max(0,v[k].y/.14));
+          const ao=(o.userData.kachel||o.userData.glow||root.userData.flach)?1:.58+.42*Math.min(1,Math.max(0,v[k].y/.14));
           const hw=wind?Math.max(0,v[k].y-wind.y0):0;
           Z.pos.push(v[k].x,v[k].y,v[k].z); Z.col.push(c.r*j*ao,c.g*j*ao,c.b*j*ao);
           Z.w.push(!wind?0:wind.art===1?Math.pow(Math.min(1,hw/.42),1.6):Math.min(1,hw/.09)*.55); }
@@ -1820,7 +1821,7 @@ function paketStand(P,ms){
 }
 
 // Werkzeugkasten für Themen: alles, was ein Thema zum Bauen braucht
-const WERKZEUG={THREE,C,GEO,M,mesh,box,cyl,gbox,gcyl,leucht,halo,anim,baum,gras,busch,blumen,fels,stein,stamm,kristall,streu,hexRing,mix,pick,rng,rauch,feuer,
+const WERKZEUG={THREE,C,GEO,M,mesh,box,bake,cyl,gbox,gcyl,leucht,halo,anim,baum,gras,busch,blumen,fels,stein,stamm,kristall,streu,hexRing,mix,pick,rng,rauch,feuer,
   bahn:()=>null, zeppelin:()=>ZEPP, luftschiff:(k)=>luftschiffModell(k), paketStand:()=>PAKET_STAND, meilensteinGold:()=>MS_GOLD, feld:()=>FELD_AKT};
 let FELD_AKT=null;                                              // das Feld, dessen Gebäude gerade gebaut wird (für Themen: H.feld())
 if(TH.bau) Object.keys(TH.bau).forEach(k=>{ if(k==="baustelle"||k==="wohnhaus"||k==="bauplan"||k==="bauplanFarbe"||k==="bauplanDeckkraft"||k==="bauplanEntwurf"||k==="baustelleEntwurf"||k==="verworfen"||k==="brandruine"||k==="wohnAbstand"||k==="wohnLaterne"||k==="wohnTreffpunkt"||k==="wohnHausAbstand") return; const fn=TH.bau[k]; BAU[k]=(g,r)=>fn(g,r,WERKZEUG); });
@@ -1988,9 +1989,9 @@ function lage(Z,ms){
   return {phase:"ausstehend",p:1,P,e};
 }
 const PHASE={
-  ruhe:{name:"Ruhig"}, spaeher:{name:"Späher gesichtet",kl:"feind"}, lager:{name:"Lager aufgeschlagen",kl:"feind"},
-  belagerung:{name:"Belagerung",kl:"feind"}, schlacht:{name:"Schlacht",kl:"feind hart"}, ausstehend:{name:"Schlacht",kl:"feind hart"},
-  sieg:{name:"Armee rückt aus",kl:"sieg"}, verteidigt:{name:"Verteidigt",kl:"sieg"}, abzug:{name:"Angreifer ziehen ab",kl:"sieg"}, brand:{name:"Brennt",kl:"brand"}
+  ruhe:{name:"Im Plan"}, spaeher:{name:"Frist naht",kl:"feind"}, lager:{name:"Endspurt",kl:"feind"},
+  belagerung:{name:"Heute fällig",kl:"feind"}, schlacht:{name:"Überfällig",kl:"feind hart"}, ausstehend:{name:"Überfällig",kl:"feind hart"},
+  sieg:{name:"Rechtzeitig fertig",kl:"sieg"}, verteidigt:{name:"Rechtzeitig fertig",kl:"sieg"}, abzug:{name:"Aufgabe verworfen",kl:"sieg"}, brand:{name:"Abgabe verpasst",kl:"brand"}
 };
 Object.keys(PHASE).forEach(k=>{ const t=TH.texte&&TH.texte.phasen&&TH.texte.phasen[k]; if(t) PHASE[k].name=t; });
 const ruinStufe=a=>a<3?0:a<14?1:a<30?2:a<60?3:4;                   // Tage seit dem Brand → vernarbt langsam
@@ -2037,19 +2038,22 @@ regionen.forEach(reg=>Object.entries(ANORDNUNG).forEach(([id,key])=>{
   const von=[...reg._lokal.values()].find(v=>v.feld&&v.feld.id===id), nach=reg._lokal.get(key);
   if(von&&nach&&von!==nach&&verschiebbar(von.feld)&&zielOk(nach)) tauscheZellen(von,nach);
 }));
-// Inseln dicht packen: größte in die Mitte, jede weitere an die nächste freie Stelle (2 Felder Abstand)
-(function packen(){
-  const gesperrt=new Set(), kand=spiral(6000), ABST=2;
-  regionen.slice().sort((a,b)=>b._lokal.size-a._lokal.size).forEach(reg=>{
-    const teile=[...reg._lokal.values()].map(v=>v.h);
-    for(const c of kand){
-      if(teile.every(h=>!gesperrt.has(hkey(hadd(c,h))))){
-        reg._z=c;
-        teile.forEach(h=>{const t=hadd(c,h);
-          for(let q=-ABST;q<=ABST;q++)for(let r=-ABST;r<=ABST;r++){const d=[q,r];if(hdist(d,[0,0])<=ABST) gesperrt.add(hkey(hadd(t,d)));}});
-        return;
-      }
-    }
+// Inseln anordnen: jede Insel hat eine feste Himmelsrichtung (Reihenfolge in der Datei × goldener Winkel, die erste liegt in der Mitte).
+// In Dateireihenfolge wandert jede Insel auf ihrem Strahl von innen nach außen bis zur ersten freien Stelle (2 Felder Abstand).
+// Wächst eine Insel, rücken die anderen nur auf ihrem Strahl weiter nach außen: die Grundanordnung bleibt, nur die Abstände ändern sich.
+// Neue Inseln hinten in der Datei ändern die Richtung der bestehenden nicht.
+(function anordnen(){
+  const gesperrt=new Set(), ABST=2, GOLD=Math.PI*(3-Math.sqrt(5));
+  const zuHex=(x,z)=>{ const r=z/1.5, q=x/SQ3-r/2; let rq=Math.round(q), rr=Math.round(r), rs=Math.round(-q-r);
+    const dq=Math.abs(rq-q), dr=Math.abs(rr-r), ds=Math.abs(rs+q+r); if(dq>dr&&dq>ds) rq=-rr-rs; else if(dr>ds) rr=-rq-rs; return [rq,rr]; };
+  regionen.forEach((reg,i)=>{
+    const teile=[...reg._lokal.values()].map(v=>v.h), w=i*GOLD+.6, dx=Math.cos(w), dz=Math.sin(w);
+    const frei=c=>teile.every(h=>!gesperrt.has(hkey(hadd(c,h))));
+    let c=[0,0];
+    if(i>0||!frei(c)) for(let d=0;d<400;d+=.35){ const k=zuHex(dx*d,dz*d); if(frei(k)){ c=k; break; } }
+    reg._z=c;
+    teile.forEach(h=>{ const t=hadd(c,h);
+      for(let q=-ABST;q<=ABST;q++)for(let r=-ABST;r<=ABST;r++){ const d=[q,r]; if(hdist(d,[0,0])<=ABST) gesperrt.add(hkey(hadd(t,d))); } });
   });
 })();
 
@@ -2105,7 +2109,10 @@ function planeLuft(){
 function feldLift(f){ for(const tl of tiles) if(tl.feld.id===f.id) return tl.lift||0; return 0; }
 function andockPunkt(f){ const z=f._zepp, d=new THREE.Vector3(MAST_X,0,0).applyAxisAngle(new THREE.Vector3(0,1,0),z.theta); return f._pos.clone().add(d).setY(MAST_H+.035); }
 // Luftschiff (Nase zeigt nach +z, Mitte der Hülle im Ursprung). Themen können es über einheiten.luftschiff(H, groesse) ersetzen.
-function luftschiffModell(k=1){
+function luftschiffModell(k=1){ const m=luftschiffRoh(k); if(!LST.umgebung) lichterAus(m); return m; }      // Ruhig: Luftschiffe ohne Lampen und Leuchtschein
+// Ruhig: Leuchtteile (additiv gezeichnete Lampen, Lichtkegel, Scheine) ausblenden, Flammen bleiben
+function lichterAus(root){ root.traverse(o=>{ if((o.isSprite||o.isMesh)&&o.material&&o.material.blending===THREE.AdditiveBlending&&o.material.map!==flammTex) o.visible=false; }); }
+function luftschiffRoh(k){
   if(TH.einheiten&&TH.einheiten.luftschiff) return TH.einheiten.luftschiff(WERKZEUG,k);
   const s=new THREE.Group(), g=new THREE.Group(); g.scale.setScalar(k); s.add(g);
   const HULL=0xdfe4ea, H2=0xa9b3bf, D=0x2a3038;
@@ -2205,12 +2212,16 @@ function baueLeer(f){                                          // Feld, das es z
   kachel(g,B.top,B.side,undefined,[f._pos.x,f._pos.z]); natur(g,"wiese",r,B);
   const root=new THREE.Group(); root.add(bake(g,r)); return root;
 }
+// Gibt es den Großbau oder die Burg am angezeigten Tag schon? Erst wenn eine ihrer Aufgaben geplant ist (oder der Meilenstein angelegt wurde)
+function klammerDa(P){ const m=P._ms||P._pk, an=m&&m.angelegt?tag(m.angelegt):null;
+  return (an!=null&&an<=ANZEIGE)||(P._liste||[]).some(f=>statusAm(f,ANZEIGE)!=null); }
 function zellZustand(f){
-  if(f._pk) return {s:"paket",stand:paketStand(f,ZEIT_JETZT())};
+  if(f._pk) return klammerDa(f)?{s:"paket",stand:paketStand(f,ZEIT_JETZT())}:{s:null};
   const R=f._ruine, Z=R?R.ziel:f._ziel, k=R?R.k:(Z?Z.brand.length:0), ms=ZEIT_JETZT();
   if(Z&&k>0&&ms<Z.brand[k-1].T+NEUBAU) return {s:null};              // hier stand damals noch nichts
   if(R&&ms>=R.T+NEUBAU) return {s:"ruine",stufe:ruinStufe((ms-R.T-NEUBAU)/864e5)};
   const echt=R?Z.obj:f;
+  if(echt._ms&&!klammerDa(echt)) return {s:null};                   // Meilenstein noch nicht geplant: leerer Platz
   if(echt._ms){ const E=Z.erledigt, e=Z.eMs<=ms?epocheBei(Z,Z.eMs):null;
     return {s:"meilenstein",echt,gold:!!(E&&E.art==="fertig"&&e&&(e.aus==="sieg"||e.aus==="frei"))}; }
   let s=statusAm(echt,ANZEIGE); if(R&&(s==="fertig"||s==="verworfen")) s="in_arbeit";
@@ -2405,19 +2416,27 @@ function siegFahne(g,x,z){
   return f;
 }
 function effekte(g){                                              // Schüsse und Einschläge: fertige Teile kommen in einen Vorrat und werden wiederverwendet (kein neues Material pro Schuss)
-  const L=[], frei=[[],[]], q=new V3();
+  const L=[], frei=[[],[],[],[]], q=new V3();                      // 0 Einschlag-Licht, 1 Schuss, 2 Stein, 3 Staubwolke
   const hol=(s)=>{ const m=frei[s].pop(); if(m){ m.visible=true; return m; }
-    const o=s?new THREE.Mesh(GEO.box,new THREE.MeshBasicMaterial({transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}))
+    const o=s===1?new THREE.Mesh(GEO.box,new THREE.MeshBasicMaterial({transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}))
+           :s===2?new THREE.Mesh(GEO.dode,M(0x7c7468))
+           :s===3?new THREE.Sprite(new THREE.SpriteMaterial({map:rauchTex,transparent:true,depthWrite:false,fog:true}))
              :new THREE.Sprite(new THREE.SpriteMaterial({map:haloTex,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));
     g.add(o); return o; };
   return {
     schuss(A,B,farbe,dauer=.3,bogen=0,dann){ const m=hol(1); m.material.color.setHex(farbe); m.material.opacity=1;
       m.scale.set(.007,.007,bogen&&!SCHUSS.bogen?.03:SCHUSS.laenge); m.position.copy(A); L.push({s:1,m,A:A.clone(),B:B.clone(),t:0,d:dauer,bogen,dann}); },
+    stein(A,B,dauer,bogen,dann){ const m=hol(2); m.scale.setScalar(.012); m.position.copy(A);           // Katapultstein: hoher Bogen, überschlägt sich im Flug
+      L.push({s:2,m,A:A.clone(),B:B.clone(),t:0,d:dauer,bogen,dann,dreh:new V3(Math.random()*9,Math.random()*9,Math.random()*9)}); },
+    staub(P,gr=.3,dauer=.9){ const sp=hol(3); sp.material.color.setHex(0x9a8f80); sp.material.opacity=.7;    // Staub und Splitter beim Einschlag
+      sp.position.copy(P); sp.scale.setScalar(.02); L.push({s:3,m:sp,t:0,d:dauer,gr}); },
     knall(P,farbe,gr=.3,dauer=.5){ const sp=hol(0); sp.material.color.setHex(farbe); sp.material.opacity=1;
       sp.position.copy(P); sp.scale.setScalar(.01); L.push({s:0,m:sp,t:0,d:dauer,gr}); },
     update(dt){
       for(let i=L.length-1;i>=0;i--){ const e=L[i]; e.t+=dt; const u=Math.min(1,e.t/e.d);
-        if(e.s){ q.lerpVectors(e.A,e.B,u); if(e.bogen) q.y+=Math.sin(u*Math.PI)*e.bogen; e.m.lookAt(q); e.m.position.copy(q); }
+        if(e.s===1){ q.lerpVectors(e.A,e.B,u); if(e.bogen) q.y+=Math.sin(u*Math.PI)*e.bogen; e.m.lookAt(q); e.m.position.copy(q); }
+        else if(e.s===2){ q.lerpVectors(e.A,e.B,u); q.y+=Math.sin(u*Math.PI)*e.bogen; e.m.position.copy(q); e.m.rotation.set(e.dreh.x*e.t,e.dreh.y*e.t,e.dreh.z*e.t); }
+        else if(e.s===3){ const s=e.gr*(.3+Math.sqrt(u)*.9); e.m.scale.set(s,s,s); e.m.position.y+=dt*.05; e.m.material.opacity=.7*(1-u); }
         else { const s=e.gr*(.35+u*.9); e.m.scale.set(s,s,s); e.m.material.opacity=Math.pow(1-u,1.4); }
         if(u>=1){ e.m.visible=false; frei[e.s].push(e.m); L.splice(i,1); if(e.dann) e.dann(e.B); } } },
     leer(){ L.forEach(e=>{ e.m.visible=false; frei[e.s].push(e.m); }); L.length=0; }
@@ -2459,26 +2478,27 @@ function baueAnsicht(Z,L,tl,t0){
   const g=new THREE.Group(); scene.add(g);
   const S=schauplatz(Z,tl), {P,u}=S, fx=effekte(g), gr=Z.gross, R=gr?.82:.7, rnd=rng(Z.id+L.phase);
   const quer=new V3(-u.z,0,u.x), ph=L.phase, V={g,fx,tl,Z,L,key:null,t0};
+  const RAFFER=zeitraffer();                                       // Zeitraffer: nur die großen Kriegsluftschiffe, keine kleinen Einheiten, Mauern oder Effekte
   const feindPh=["lager","belagerung","schlacht","ausstehend"];
   // Himmel färbt sich rot, Warnring um das Ziel
   const rot=feindPh.includes(ph)||ph==="brand"||(ph==="sieg"&&feindPh.includes(L.vorher));
   let himmel=null, dunst=null, ring=null;
   // kein roter Himmel und kein Dunst mehr (sah wie ein Lichtfleck aus); der Warnring am Feld bleibt
-  if(ph==="belagerung"||ph==="schlacht"||ph==="ausstehend"){
+  if(!RAFFER&&(ph==="belagerung"||ph==="schlacht"||ph==="ausstehend")){
     ring=new THREE.Mesh(hexRing(.9,.97),new THREE.MeshBasicMaterial({color:0xff3b3b,transparent:true,opacity:.6,blending:THREE.AdditiveBlending,depthWrite:false}));
     ring.position.set(P.x,.035,P.z); g.add(ring); }
   // Schild über dem Ziel
   let schild=null;
-  if(["belagerung","schlacht","ausstehend","sieg"].includes(ph)||(ph==="brand"&&L.p<.02)){ schild=einheitSchild(R); schild.position.copy(P); g.add(schild); }
+  if(!RAFFER&&(["belagerung","schlacht","ausstehend","sieg"].includes(ph)||(ph==="brand"&&L.p<.02))){ schild=einheitSchild(R); schild.position.copy(P); g.add(schild); }
   // Späher-Drohnen
   const drohnen=[], nDr0=ph==="spaeher"?(gr?3:2):ph==="lager"?1:["belagerung","schlacht","ausstehend"].includes(ph)?(gr?2:1):(ph==="sieg"&&L.vorher!=="ruhe")?(L.vorher==="spaeher"?(gr?3:2):1):0;
-  const nDr=nDr0; for(let i=0;i<nDr;i++){ const d=einheitDrohne(); d.scale.setScalar(GROESSE); g.add(d); drohnen.push({d,r:.95+rnd()*.45,h:.82+rnd()*.22,a:i/nDr*6.283,v:(.18+rnd()*.12)*(i%2?1:-1),lebt:true,tod:0}); }
+  const nDr=RAFFER?0:nDr0; for(let i=0;i<nDr;i++){ const d=einheitDrohne(); d.scale.setScalar(GROESSE); g.add(d); drohnen.push({d,r:.95+rnd()*.45,h:.82+rnd()*.22,a:i/nDr*6.283,v:(.18+rnd()*.12)*(i%2?1:-1),lebt:true,tod:0}); }
   // Barke (Lager) mit Geschützen
   let barke=null; const mitBarke=feindPh.includes(ph)||(ph==="sieg"&&feindPh.includes(L.vorher))||(ph==="abzug"&&feindPh.includes(L.vorher))||(ph==="brand"&&L.p<.02);
   if(mitBarke){ barke=einheitBarke(gr); barke.position.copy(S.lager); richtungY(barke,-u.x,-u.z); g.add(barke); }
   // Läufer
   const OHNE_FUSSVOLK=!!(TH.kampf&&TH.kampf.ohneFussvolk);
-  const laeufer=[], nL=OHNE_FUSSVOLK?0:ph==="lager"?3:ph==="belagerung"?(gr?12:6):(ph==="schlacht"||ph==="ausstehend")?(gr?16:8):
+  const laeufer=[], nL=OHNE_FUSSVOLK||RAFFER?0:ph==="lager"?3:ph==="belagerung"?(gr?12:6):(ph==="schlacht"||ph==="ausstehend")?(gr?16:8):
     ((ph==="sieg"||ph==="abzug")&&["belagerung","schlacht","ausstehend"].includes(L.vorher))?(gr?12:7):(ph==="brand"&&L.p<.02)?(gr?12:7):0;
   for(let i=0;i<nL;i++){
     const e=einheitLaeufer(true); e.scale.setScalar(GROESSE); g.add(e);
@@ -2492,7 +2512,7 @@ function baueAnsicht(Z,L,tl,t0){
   // Katapulte am Inselrand (Belagerung, Schlacht; beim Sieg werden sie zerstört)
   const katapulte=[], mitKat=["belagerung","schlacht","ausstehend"].includes(ph)||((ph==="sieg"||ph==="abzug")&&["belagerung","schlacht","ausstehend"].includes(L.vorher))||(ph==="brand"&&L.p<.02);
   const nKat=OHNE_FUSSVOLK?(gr?5:3):(gr?2:1);
-  if(mitKat) for(let i=0;i<nKat;i++){ const k=einheitGeschuetz(); k.scale.setScalar(GROESSE*1.15); const sd=i%2?1:-1;
+  if(mitKat&&!RAFFER) for(let i=0;i<nKat;i++){ const k=einheitGeschuetz(); k.scale.setScalar(GROESSE*1.15); const sd=i%2?1:-1;
     let ziel, start;
     if(OHNE_FUSSVOLK){ if(!V.plaetze) V.plaetze=katapultPlaetze(Z,S,nKat,rnd);
       if(V.plaetze[i]) ziel=V.plaetze[i].clone(); else { const a=Math.atan2(u.z,u.x)+(nKat>1?(i/(nKat-1)-.5):0)*Math.PI*.95+(rnd()-.5)*.12, rr=R+.42+rnd()*.12; ziel=new V3(P.x+Math.cos(a)*rr,0,P.z+Math.sin(a)*rr); }
@@ -2506,24 +2526,25 @@ function baueAnsicht(Z,L,tl,t0){
     flotte.push({s,von:von.clone().add(new V3((rnd()-.5)*.6,1.05+i*.15,(rnd()-.5)*.6)),hoch:1.05+i*.16,a:i*Math.PI,cd:1.5+i}); s.position.copy(flotte[i].von); } }
   // Eigene Armee
   const panzer=[];
-  if(ph==="sieg"){ const von=armeeStart(tl), n=gr?8:4;
+  if(ph==="sieg"&&!RAFFER){ const von=armeeStart(tl), n=gr?8:4;
     for(let i=0;i<n;i++){ const p=einheitPanzer(); p.scale.setScalar(GROESSE); g.add(p);
       const a=Math.atan2(u.z,u.x)+(i/(n-1||1)-.5)*Math.PI*1.1, rr=R-.1;
       panzer.push({p,von:von.clone().add(new V3((rnd()-.5)*.3,0,(rnd()-.5)*.3)),ziel:new V3(P.x+Math.cos(a)*rr,0,P.z+Math.sin(a)*rr),vz:i*.35,cd:1+rnd()}); p.position.copy(panzer[i].von); } }
   // Wracks nach dem Sieg
-  if(ph==="verteidigt"){ const n=OHNE_FUSSVOLK?(gr?5:3):(gr?6:4), pl=OHNE_FUSSVOLK?katapultPlaetze(Z,S,n,rnd):[];
+  if(ph==="verteidigt"&&!RAFFER){ const n=OHNE_FUSSVOLK?(gr?5:3):(gr?6:4), pl=OHNE_FUSSVOLK?katapultPlaetze(Z,S,n,rnd):[];
     for(let i=0;i<n;i++){ const a=Math.atan2(u.z,u.x)+(i/n-.5)*Math.PI*1.5, rr=R+.15;
       let x=P.x+Math.cos(a)*(rr+(OHNE_FUSSVOLK?.3:0)), z=P.z+Math.sin(a)*(rr+(OHNE_FUSSVOLK?.3:0)); if(pl[i]){ x=pl[i].x; z=pl[i].z; }
       if(!istLand(x,z)) continue;                                                                  // keine Wracks über dem Abgrund
       const w=OHNE_FUSSVOLK?einheitGeschuetz():einheitLaeufer(true); w.scale.setScalar(GROESSE*(OHNE_FUSSVOLK?1.1:1)); w.position.set(x,OHNE_FUSSVOLK?-.008:-.03,z);
       w.rotation.set(OHNE_FUSSVOLK?(rnd()-.5)*.2:rnd()*.5,rnd()*6,OHNE_FUSSVOLK?.18+rnd()*.2:1.35); g.add(w);
       if(OHNE_FUSSVOLK&&w.userData.turm){ w.userData.turm.rotation.z=-.9; w.userData.turm.position.y-=.02; }                // Wurfarm abgeknickt
+      if(OHNE_FUSSVOLK&&w.userData.arm){ w.userData.arm.rotation.set(.55,0,.4); if(w.userData.stein) w.userData.stein.visible=false; }
       rauch(g,w.position.x,w.position.z,.25*(1-L.p),.5,0x505055,.03); } }
   let fahne=null;
-  if(ph==="verteidigt"||ph==="sieg"){ fahne=siegFahne(g,P.x+quer.x*.62,P.z+quer.z*.62); if(ph==="sieg") fahne.position.y=-.6; }
+  if(!RAFFER&&(ph==="verteidigt"||ph==="sieg")){ fahne=siegFahne(g,P.x+quer.x*.62,P.z+quer.z*.62); if(ph==="sieg") fahne.position.y=-.6; }
   // Feuer
   const flammen=[]; let rauchSp=null;
-  if(ph==="brand"){ const pr=rng(Z.id+"feuer");
+  if(ph==="brand"&&!RAFFER){ const pr=rng(Z.id+"feuer");
     flammen.push(feuer(g,P.x,P.z,gr?3.2:2.6,.05));
     for(let i=0;i<(gr?10:7);i++){ const a=pr()*6.283, d=.15+pr()*.38; flammen.push(feuer(g,P.x+Math.cos(a)*d,P.z+Math.sin(a)*d,1+pr()*1.1,.02+pr()*.12)); }
     rauchSp=rauch(g,P.x,P.z,1.8,2.6,0x2e2e32,.3); }
@@ -2553,6 +2574,11 @@ function baueAnsicht(Z,L,tl,t0){
       barke.visible=weg<.99; if(B.leuchte) B.leuchte.material.opacity=(t%1.2)<.25?.95:.15; if(B.fahne) B.fahne.rotation.y=Math.sin(t*2)*.15;
       if((ph==="belagerung"||ph==="schlacht"||ph==="ausstehend")&&schild) B.gesch.forEach((e,i)=>{
         const T=schild.position, wp=e.getWorldPosition(new V3()); if(e.userData.turm) e.userData.turm.rotation.y=Math.atan2(-(T.z-wp.z),T.x-wp.x)-barke.rotation.y;
+        if(e.userData.arm){ e.rotation.y=Math.atan2(-(T.z-wp.z),T.x-wp.x)-barke.rotation.y;               // Katapult an Deck: ganzes Gerät dreht zum Ziel, wirft Steine
+          const ws=e.userData.ws||(e.userData.ws={w:null});
+          wurf(e,ws,dt,()=>steinWurf(e,schild,1.3));
+          e.userData.cd=(e.userData.cd??(1+i*1.3))-dt; if(e.userData.cd<=0&&ws.w==null){ e.userData.cd=(ph==="belagerung"?5:2.4)+Math.random()*1.5; ws.w=0; ws.los=false; }
+          return; }
         e.userData.cd=(e.userData.cd??(1+i*1.3))-dt; if(e.userData.cd<=0){ e.userData.cd=(ph==="belagerung"?5:1.6)+Math.random()*1.5;
           const A=wp.clone(); A.y+=.1; const Bp=trefferPunkt(schild,A); if(e.userData.blitz) e.userData.blitz.material.opacity=.9;
           fx.schuss(A,Bp,SCHUSS.geschuetz,.9,.45,q=>{ fx.knall(q,0xff7a3a,.35,.5); schild.userData.blitz=1; }); }
@@ -2595,12 +2621,15 @@ function baueAnsicht(Z,L,tl,t0){
         o.cd-=dt; if(o.cd<=0){ o.cd=.35+Math.random()*.5; const A=pz.localToWorld((pz.userData.muendung||new V3(0,.08,0)).clone()); const Bp=Zp.clone(); Bp.y+=.07;
           fx.schuss(A,Bp,SCHUSS.eigen,.22,SCHUSS.bogen,q=>fx.knall(q,SCHUSS.treffer_eigen,.12,.25)); } } });
     katapulte.forEach((o,i)=>{ const k=o.k;
-      if(!o.lebt){ o.tod+=dt; k.rotation.z=Math.min(.35,o.tod*1.5); k.position.y=Math.max(-.01,-o.tod*.02); if(k.userData.turm) k.userData.turm.rotation.z=Math.max(-.9,-o.tod*3); return; }
+      if(!o.lebt){ o.tod+=dt; k.rotation.z=Math.min(.35,o.tod*1.5); k.position.y=Math.max(-.01,-o.tod*.02); if(k.userData.turm) k.userData.turm.rotation.z=Math.max(-.9,-o.tod*3);
+        if(k.userData.arm){ k.userData.arm.rotation.x=Math.min(.55,o.tod*2); if(k.userData.stein) k.userData.stein.visible=false; } return; }
       if(ph==="sieg"&&tau>5+i*1.5){ o.lebt=false; fx.knall(k.position.clone().add(new V3(0,.08,0)),0xff8a3a,.5,.7); rauch(g,k.position.x,k.position.z,.35,.6,0x4a4a4e,.04); return; }
       if(ph==="abzug"){ k.position.addScaledVector(u,dt*.25*glatt((tau-2)/3)); k.visible=tau<14; return; }
       if(o.rollt){ const kk=glatt((tau-o.vz)/5); k.position.lerpVectors(o.start,o.ziel,kk); if(kk<1){ richtungY(k,o.ziel.x-o.start.x,o.ziel.z-o.start.z); return; } richtungY(k,P.x-k.position.x,P.z-k.position.z); }
       if(!schild||!(["belagerung","schlacht","ausstehend"].includes(ph)||ph==="sieg")) return;
-      o.cd-=dt; if(k.userData.turm) k.userData.turm.rotation.z=o.cd<.4?-.6*(1-o.cd/.4):0;
+      o.cd-=dt;
+      if(k.userData.arm){ wurf(k,o,dt,()=>steinWurf(k,schild,1)); if(o.cd<=0&&o.w==null){ o.cd=(ph==="belagerung"?4.5:2.4)+Math.random()*1.5; o.w=0; o.los=false; } return; }
+      if(k.userData.turm) k.userData.turm.rotation.z=o.cd<.4?-.6*(1-o.cd/.4):0;
       if(o.cd<=0){ o.cd=(ph==="belagerung"?4.5:2.2)+Math.random()*1.5; const A=k.position.clone().add(new V3(0,.16,0)), Bp=trefferPunkt(schild,A);
         if(k.userData.blitz) k.userData.blitz.material.opacity=.9;
         fx.schuss(A,Bp,SCHUSS.geschuetz,1.1+A.distanceTo(Bp)*.25,.35+A.distanceTo(Bp)*.18,q=>{ fx.knall(q,0xffb070,.4,.6); schild.userData.blitz=1; }); }
@@ -2623,8 +2652,38 @@ function baueAnsicht(Z,L,tl,t0){
       flammen.forEach((f,i)=>f.userData.st=st*(i?1:1)); rauchSp.forEach(s=>s.userData.st=.6+st*1.2);
       tl.dunkel=1-.62*an; }
   };
+  if(RAFFER){ fx.schuss=fx.knall=fx.stein=fx.staub=()=>{}; if(barke&&barke.userData.leuchte) barke.userData.leuchte.visible=false; }
+  if(!LST.umgebung) ruhigeAnsicht(V,t0,[ring,schild]);
   return V;
 }
+// Ruhig: der Angriff steht als Standbild. Einmal still bis zum Endzustand vorrechnen (Einmarsch, Gefallene, abgezogene Barke),
+// danach keine Schüsse, Einschläge, Lichtkegel, Signallichter oder Mündungsblitze mehr; nur der Zustand (Schild, Feuerstärke) folgt dem Tag
+function ruhigeAnsicht(V,t0,bleibt){
+  const lauf=V.update, fest=t0+30; V.fx.schuss=()=>{}; V.fx.knall=()=>{};
+  for(let k=0;k<=300;k++) lauf(t0+k*.1,.1);
+  const aus=()=>V.g.children.forEach(c=>{ if(!bleibt.includes(c)) lichterAus(c); });     // Warnring und Schild/Mauer zeigen den Zustand und bleiben
+  aus(); let letzt=-9;
+  V.update=(t)=>{ if(t-letzt<.5) return; letzt=t; lauf(fest,0); aus(); };
+}
+// Katapult-Wurf (Thema mit userData.arm): Der Arm schnellt in 0,16 s nach vorn gegen den Querbalken und federt nach,
+// der Stein löst sich kurz vor dem Anschlag; danach wird der Arm über die Winde langsam zurückgekurbelt und neu beladen.
+function wurf(k,s,dt,los){
+  const U=k.userData; if(s.w==null){ U.arm.rotation.z=U.armRuhe; if(U.stein) U.stein.visible=true; return; }
+  s.w+=dt; const w=s.w, R=U.armRuhe, F=U.armWurf; let a;
+  if(w<.16){ const u=w/.16; a=R+(F-R)*u*u*u; }
+  else if(w<.45){ const u=(w-.16)/.29; a=F+Math.sin(u*Math.PI*3)*.12*(1-u); }
+  else if(w<2.05){ const u=(w-.45)/1.6; a=F+(R-F)*u*u*(3-2*u); if(U.winde) U.winde.rotation.z-=dt*7; }
+  else { a=R; s.w=null; }
+  U.arm.rotation.z=a;
+  if(!s.los&&w>=.13){ s.los=true; los(); }
+  if(U.stein) U.stein.visible=s.w==null||w<.13||w>1.95;
+}
+function steinWurf(k,schild,hoch){                                   // Stein fliegt aus der Schale in hohem Bogen zur Mauer
+  const A=k.userData.stein.getWorldPosition(new V3()), Bp=trefferPunkt(schild,A), d=A.distanceTo(Bp), V=Object.values(ANSICHT).find(v=>v.g===ansichtVon(k));
+  if(!V) return;
+  V.fx.stein(A,Bp,(1+d*.32)*hoch,(.45+d*.4)*hoch,q=>{ V.fx.staub(q,.34,1); V.fx.staub(q.clone().add(new V3(0,.04,0)),.2,.6); schild.userData.blitz=1; });
+}
+function ansichtVon(o){ let p=o; while(p&&p.parent&&p.parent!==scene) p=p.parent; return p; }
 function trefferPunkt(schild,A){ if(schild.userData.treffer) return schild.userData.treffer(A); const S=schild.position, R=schild.userData.R, d=new V3(A.x-S.x,0,A.z-S.z).normalize();
   const h=.15+Math.random()*.45; const q=new V3(S.x+d.x*R*Math.sqrt(1-h*h),S.y+R*.82*h,S.z+d.z*R*Math.sqrt(1-h*h));
   q.x+=(Math.random()-.5)*.12; q.z+=(Math.random()-.5)*.12; return q; }
@@ -2651,7 +2710,7 @@ function baueSpur(Z,s,stufe,ort){
   if(stufe>=2) streu(r,stufe*2,.45,[],.1).forEach(p=>busch(g,p[0],p[1],.7,r,pick(r,C.leaf)));
   const w=[]; g.traverse(o=>{ if(o.isSprite) w.push(o); }); w.forEach(o=>o.removeFromParent());
   const n=ANIM.length; root.add(bake(g,r)); ANIM.length=n;
-  if(stufe===0){ const bl=halo(root,-.02,.12,.05,.14,FEIND.glut,0); anim(bl,(t)=>{ bl.material.opacity=((t+r())%2.4)<.15?.8:0; }); }
+  if(stufe===0&&LST.umgebung){ const bl=halo(root,-.02,.12,.05,.14,FEIND.glut,0); anim(bl,(t)=>{ bl.material.opacity=((t+r())%2.4)<.15?.8:0; }); }
   root.position.copy(ort); root.position.y=.0; return root;
 }
 function spurenAktualisieren(){
@@ -2669,11 +2728,12 @@ function zeitMs(){
     else { const s=WIEDER.teile.find(x=>el>=x[0]&&el<x[1])||WIEDER.teile[0], u=(el-s[0])/(s[1]-s[0]); return s[2]+(s[3]-s[2])*u; } }
   return ANZEIGE>=D_HEUTE?echtJetzt():lokal(ANZEIGE,17);
 }
+function zeitraffer(){ return !WIEDER&&(!!spielt||ANZEIGE<D_HEUTE); }      // Zeitraffer läuft oder ein vergangener Tag ist eingestellt (nicht bei der Schlacht-Wiederholung)
 function ansichtenAktualisieren(t){
   let geaendert=false;
   ZIELE.forEach(Z=>{
     const L=lage(Z,ZEIT), tl=aktZelle(Z,ZEIT), v=ANSICHT[Z.id];
-    const key=L.phase==="ruhe"||!tl?null:[L.phase,tl.feld.id,L.vorher||""].join("|");
+    const key=L.phase==="ruhe"||!tl?null:[L.phase,tl.feld.id,L.vorher||"",zeitraffer()?"z":""].join("|");
     if(v&&v.key===key){ v.L=L; return; }
     if(!v&&!key) return;                                          // vorher nichts, jetzt nichts: keine Änderung (sonst würden alle Beschriftungen 4× pro Sekunde neu gebaut)
     if(v) ansichtWeg(Z.id);
@@ -2685,10 +2745,11 @@ function ansichtenAktualisieren(t){
 }
 function brandZahl(){ let n=0; ZIELE.forEach(Z=>Z.epochen.forEach(e=>{ if(e.aus==="brand"&&e.P.T<=echtJetzt()) n++; })); return n; }
 const BRAND_START=ZIELE.reduce((a,Z)=>a+Z.brand.length,0); let brandPruef=0;
+let MARKER_TAG=null;
 function drohTick(t,dt){
   if(t-letzterTick>.25){ letzterTick=t; ZEIT=zeitMs();
     tiles.forEach(tileAktualisieren);
-    if(ansichtenAktualisieren(t)) baueMarker();
+    if(ansichtenAktualisieren(t)||ANZEIGE!==MARKER_TAG){ MARKER_TAG=ANZEIGE; baueMarker(); }      // neuer Tag im Zeitraffer: Schilder für Großbauten/Burgen neu (erst ab ihrer Planung)
     spurenAktualisieren(); leitungenAktualisieren(); drohMarkerText(); zeitText(); planJetzt();
     if(t-brandPruef>20){ brandPruef=t; if(!WIEDER&&brandZahl()>BRAND_START){ try{ sessionStorage.setItem("welt-kamera",JSON.stringify(cam.ziel)); }catch(e){} location.reload(); } } }
   for(const id in ANSICHT) ANSICHT[id].update(t,dt);
@@ -2702,11 +2763,11 @@ function tileVon(f){ return f._ziel?aktZelle(f._ziel,ZEIT):tiles.find(t=>t.feld=
 function leitungenAktualisieren(){
   const L=[];
   const feindlich=f=>{ const Z=f._ziel; if(!Z) return false; const p=(Z._L||lage(Z,ZEIT)).phase; return ["spaeher","lager","belagerung","schlacht","ausstehend"].includes(p); };
-  PAKETE.forEach(P=>{ const a=tiles.find(t=>t.feld===P); if(!a||!a.feld._pos) return;
-    P._liste.forEach(f=>{ const b=tileVon(f); if(!b||b===a) return; const s=statusAm(f,ANZEIGE);
+  PAKETE.forEach(P=>{ const a=tiles.find(t=>t.feld===P); if(!a||!a.feld._pos||a.status==null) return;           // Leitung erst, wenn Großbau und Aufgabe am angezeigten Tag geplant sind
+    P._liste.forEach(f=>{ const b=tileVon(f); if(!b||b===a) return; const s=statusAm(f,ANZEIGE); if(s==null||b.status==null) return;
       const farbe=s==="fertig"?0x3fd99a:feindlich(f)?0xff4a3a:s==="verworfen"?0x6a7280:0x9fe8ff;
       L.push({A:a.feld._pos,B:b.feld._pos,farbe,art:"paket",hoch:1.05,ids:[P.id,f.id]}); }); });
-  felder.forEach(f=>(f.nach||[]).forEach(v=>{ const vf=feldNach[v]; if(!vf) return; const a=tileVon(vf), b=tileVon(f); if(!a||!b||a===b) return;
+  felder.forEach(f=>(f.nach||[]).forEach(v=>{ const vf=feldNach[v]; if(!vf) return; const a=tileVon(vf), b=tileVon(f); if(!a||!b||a===b||a.status==null||b.status==null) return;
     const krit=KRIT.has(f.id)&&KRIT.has(v);
     L.push({A:a.feld._pos,B:b.feld._pos,farbe:krit?0xff6a4a:C.amber,art:"abh",hoch:.55,krit,ids:[v,f.id]}); }));
   const sicht=L.filter(l=>l.art==="paket"||(auswahl!=null&&l.ids.includes(auswahl))); L.length=0; L.push(...sicht);   // Großbau-Leitungen immer, Abhängigkeiten nur für das ausgewählte Feld
@@ -2742,13 +2803,17 @@ function setzeKamera(I){
   camera.position.set(I.x+Math.sin(I.pol)*Math.sin(I.az)*I.dist, Math.cos(I.pol)*I.dist, I.z+Math.sin(I.pol)*Math.cos(I.az)*I.dist);
   camera.lookAt(I.x,0,I.z); camera.updateMatrixWorld();
 }
-function passt(d){
+function passt(d,frei){
   setzeKamera({x:mitte.x,z:mitte.z,dist:d,az:.3,pol:.9});
   const xr=1-2*(PANEL_W+20)/innerWidth;
-  return ecken.every(p=>{vtmp.copy(p).project(camera);return vtmp.x>-.94&&vtmp.x<xr-.03&&vtmp.y>-.88&&vtmp.y<.7;});
+  return ecken.every(p=>{vtmp.copy(p).project(camera); if(!(vtmp.x>-.94&&vtmp.x<xr-.03&&vtmp.y>-.88&&vtmp.y<.7)) return false;
+    if(!frei) return true; const px=(vtmp.x+1)/2*innerWidth, py=(1-vtmp.y)/2*innerHeight;           // frei: Bildschirmbereich, den ein Fenster verdeckt (z. B. der Rundgang)
+    return !(px>frei.left-12&&px<frei.right+110&&py>frei.top-12&&py<frei.bottom+80); });         // Zugabe rechts/unten: die Inselnamen stehen über und neben den Feldern
 }
-function alleZeigen(){
-  let lo=2, hi=weite*8; for(let i=0;i<30;i++){const m=(lo+hi)/2; if(passt(m)) hi=m; else lo=m;}
+function alleZeigen(el){
+  const frei=el&&el.getBoundingClientRect?el.getBoundingClientRect():null;
+  const such=f=>{ let lo=2, hi=weite*8; for(let i=0;i<30;i++){const m=(lo+hi)/2; if(passt(m,f)) hi=m; else lo=m;} return hi; };
+  let hi=such(null); if(frei){ const h2=such(frei); if(h2<hi*1.35) hi=h2; }           // dem Fenster nur ausweichen, wenn die Welt dabei nicht winzig wird (kleine Bildschirme)
   Object.assign(cam.ziel,{x:mitte.x,z:mitte.z,dist:hi,az:.3,pol:.9}); if(UEB_DIST==null) UEB_DIST=hi;
 }
 let UEB_DIST=null;
@@ -2920,7 +2985,7 @@ function setzeUmbau(an){
 }
 document.getElementById("umbauBtn").addEventListener("click",()=>setzeUmbau(!umbau));
 (function(){ const b=document.getElementById("leistungBtn"), NAME={voll:"Voll",normal:"Normal",ruhig:"Ruhig"}, NEXT={voll:"normal",normal:"ruhig",ruhig:"voll"};
-  const TIPP={voll:"Leistung Voll: alle Bewegungen, feine Schatten. Klick: Normal",normal:"Leistung Normal: weniger Boten, einfachere Schatten. Klick: Ruhig",ruhig:"Leistung Ruhig: Umgebung steht still, keine Schatten, spart Akku. Klick: Voll"};
+  const TIPP={voll:"Leistung Voll: alle Bewegungen, feine Schatten. Klick: Normal",normal:"Leistung Normal: weniger Boten, einfachere Schatten. Klick: Ruhig",ruhig:"Leistung Ruhig: alles steht still, Angriffe als Standbild ohne Schüsse und Lichter, keine Schatten, spart Akku. Klick: Voll"};
   const EN={voll:"Full",normal:"Normal",ruhig:"Calm"}; b.innerHTML='<svg class="ico" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 11.5a5.5 5.5 0 1 1 11 0"/><path d="M8 11.5 10.8 7"/><circle cx="8" cy="11.5" r=".9" fill="currentColor"/></svg><span class="lbl" data-roh>'+(window.GF_LANG&&GF_LANG()==="de"?NAME:EN)[LEISTUNG]+"</span>"; b.title=TIPP[LEISTUNG];
   b.addEventListener("click",()=>{ schreib("welt-leistung",NEXT[LEISTUNG]); try{ sessionStorage.setItem("welt-kamera",JSON.stringify(cam.ziel)); }catch(e){} location.reload(); });
 })();
@@ -2958,10 +3023,8 @@ function baueMarkerInhalt(){
     const p=()=>new THREE.Vector3(f._pos.x,hoch+t.lift,f._pos.z);
     if(f.neu) neuerMarker(`<div class="pin ${f.status==="in_arbeit"?"bau":"neu"}"><span class="dot"></span><span class="t">${f.status==="in_arbeit"?"Baustelle":"Neu"}</span></div>`,p,"badge3d",()=>waehle(f.id),{detail:true,reg:f._reg});
   });
-  tiles.forEach(t=>{ const f=t.feld; if(f._ruine||f._pk||f._ms) return;                // Namensschilder nur für Baustellen und Bauplätze (nah dran, Insel in der Bildmitte)
-    const st=statusAm(f,ANZEIGE); if(st!=="in_arbeit"&&st!=="geplant") return;
-    const name=String(f.titel||""), kurz=name.length>30?name.slice(0,29)+"…":name;
-    neuerMarker(esc(kurz),()=>new THREE.Vector3(f._pos.x,.42+t.lift,f._pos.z+.38),"gname",()=>waehle(f.id),{detail:true,reg:f._reg,gname:true}); });
+  // keine Namensschilder über Baustellen und Bauplätzen mehr (zu unruhig); Name steht im Tooltip und im Panel
+
 }
 const vm=new THREE.Vector3();
 let INSEL_TAKT=-1;
@@ -2973,7 +3036,7 @@ function markerUpdate(t){
   marker.forEach((m,i)=>{
     let an=!(m.detail&&!(nah&&m.reg===mitte));
     if(an){ vm.copy(typeof m.pos==="function"?m.pos():m.pos);
-      if(m.el.className==="badge3d") vm.y+=Math.sin(t*2+i)*.03;
+      if(m.el.className==="badge3d"&&LST.umgebung) vm.y+=Math.sin(t*2+i)*.03;
       vm.project(camera); an=vm.z<=1; }
     const d=an?"":"none"; if(m.el.style.display!==d) m.el.style.display=d;
     if(an) sicht.push([m,(vm.x+1)/2*innerWidth,(1-vm.y)/2*innerHeight]);
@@ -3037,7 +3100,7 @@ function schleife(){
   });
   const sel=tiles.find(tl=>tl.feld.id===auswahl);
   rahmen.visible=!!sel&&sel.status!=="geplant";
-  if(sel){ rahmen.position.set(sel.feld._pos.x,sel.lift+.01,sel.feld._pos.z); rahmen.material.opacity=.55+.35*Math.sin(t*3); }
+  if(sel){ rahmen.position.set(sel.feld._pos.x,sel.lift+.01,sel.feld._pos.z); rahmen.material.opacity=LST.umgebung?.55+.35*Math.sin(t*3):.8; }
   if(ansicht==="welt"){ if(LST.schattenTakt>1&&!(BILD++%LST.schattenTakt)) renderer.shadowMap.needsUpdate=true; renderer.render(scene,camera); markerUpdate(t); }
   requestAnimationFrame(schleife);
 }
@@ -3095,7 +3158,8 @@ const LISTE=!(W.meta&&W.meta.seitenleiste==="reiter");
 const EDX=()=>typeof ED==="function"?ED():null;                      // Bearbeiten-Haken (nur im Artifact vorhanden)
 let INSEL=null, OFFEN=null, LISTE_SONDER=null;
 try{ const v=sessionStorage.getItem("welt-insel"); if(v&&regionen.some(r=>r.id===v)) INSEL=v; }catch(e){}
-if(LISTE){ document.body.classList.add("liste"); }                // drei Reiter: Lage · Aufgaben · Feld
+if(LISTE){ document.body.classList.add("liste"); }
+if(!LST.umgebung) document.body.classList.add("ruhig");                // Ruhig: auch blinkende Warnzeichen stehen still                // drei Reiter: Lage · Aufgaben · Feld
 function setzeFilter(id,neuZeichnen){ INSEL=id||null; try{ if(INSEL) sessionStorage.setItem("welt-insel",INSEL); else sessionStorage.removeItem("welt-insel"); }catch(e){} if(neuZeichnen) panel(); }
 const wocheStart=n=>n-((new Date(lokal(n,12)).getDay()+6)%7);          // Montag der Woche von Tag n
 function paneListe(){
@@ -3115,9 +3179,9 @@ function paneListe(){
   if(REITER==="lage"){ const ev=[], grenze=heute-7;
     felder.forEach(f=>{ const t=tag(f.seit); if(t!=null&&t>=grenze&&t<=heute&&(f.status==="fertig"||f.status==="verworfen")) ev.push({t,o:1,html:`<span class="zt">${f.status==="fertig"?"fertig":"verworfen"}</span> ${esc(f.titel)}`,id:f.id,reg:f._reg}); });
     ZIELE.filter(Z=>!Z.geerbt).forEach(Z=>ereignisse(Z).forEach(e=>{ const t=tagVon(e.ms); if(t<grenze||t>heute) return; const reg=Z.obj._reg||regionen.find(q=>q.id===Z.obj.region);
-      const was=e.art==="brand"?"abgebrannt":e.art==="sieg"?"verteidigt":e.art==="abzug"?"Angreifer abgezogen":e.art==="verschoben"?"Frist verschoben":"neue Frist";
+      const was=e.art==="brand"?"Abgabe verpasst":e.art==="sieg"?"rechtzeitig fertig":e.art==="abzug"?"verworfen":e.art==="verschoben"?"Frist verschoben":"neue Frist";
       ev.push({t,o:0,html:`<span class="zt${e.art==="brand"?" rot":""}">${was}</span> ${esc(Z.obj.titel)}`,id:Z.obj.id,reg}); }));
-    const sieg=new Set(ev.filter(e=>e.o===0&&/>verteidigt</.test(e.html)).map(e=>e.id+"@"+e.t));          // fertig und verteidigt am selben Tag: nur „verteidigt“ zeigen
+    const sieg=new Set(ev.filter(e=>e.o===0&&/>rechtzeitig fertig</.test(e.html)).map(e=>e.id+"@"+e.t));          // fertig und rechtzeitig fertig (Frist) am selben Tag: nur den Frist-Eintrag zeigen
     for(let i=ev.length-1;i>=0;i--) if(ev[i].o===1&&sieg.has(ev[i].id+"@"+ev[i].t)) ev.splice(i,1);
     (W.chronik||[]).forEach(c=>{ const t=tag(c.datum); if(t!=null&&t>=grenze&&t<=heute) ev.push({t,o:2,html:esc(c.text)}); });
     ev.sort((a,b)=>b.t-a.t||a.o-b.o);
@@ -3223,7 +3287,7 @@ function paneLegende(){
     <img src="${thumb("feature","in_arbeit")}"><div><b style="color:${STATUS.in_arbeit.farbe}">Baustelle</b><div class="muted">${esc(TX.leg_baustelle)}</div></div>
     <img src="${thumb("feature","geplant")}"><div><b style="color:${STATUS.geplant.farbe}">Geplant</b><div class="muted">${esc(TX.leg_geplant)}</div></div>
     <img src="${thumb("feature","verworfen")}"><div><b style="color:${STATUS.verworfen.farbe}">Verworfen</b><div class="muted">${esc(TX.leg_verworfen)}</div></div>
-  </div><h3>Fristen & Angriffe</h3><p class="muted" style="margin-top:-2px">Eine Frist bringt Angreifer: ${esc(TX.spaeher)} → ${esc(TX.lager)} (roter Himmel) → ${esc(TX.belagerung)} am Fristtag → ${esc(TX.schlacht)} den ganzen nächsten Tag → <b>Entscheidung um 16:00</b>. Fertig bis dahin: die Armee schlägt sie zurück. Sonst brennt das Gebäude nieder.</p><div class="legend">
+  </div><h3>Fristen & Angriffe</h3><p class="muted" style="margin-top:-2px">Eine Frist bringt Angreifer: <b>Frist naht</b> (Kundschafter kreisen) → <b>Endspurt</b> (Kriegsluftschiff am Inselrand) → <b>Heute fällig</b> (Belagerung) → <b>Überfällig</b> (Schlacht den ganzen nächsten Tag) → <b>Abgabe um 16:00</b>. Fertig bis dahin: die Angreifer werden zurückgeschlagen. Sonst brennt das Gebäude nieder.</p><div class="legend">
     <img src="${thumbRuine(0)}"><div><b style="color:#ff8a4a">Brandruine, frisch</b><div class="muted">${esc(TX.leg_ruine0)}</div></div>
     <img src="${thumbRuine(2)}"><div><b style="color:#d98a5a">Brandruine, nach Wochen</b><div class="muted">${esc(TX.leg_ruine2)}</div></div>
     <img src="${thumbRuine(4)}"><div><b style="color:#9fb3c8">Brandruine, nach 2 Monaten</b><div class="muted">${esc(TX.leg_ruine4)}</div></div>
@@ -3239,7 +3303,7 @@ function paneLegende(){
     <b>Boten:</b> fliegen entlang der Abhängigkeiten und des Datenflusses zwischen den Inseln. Mehr Aktivität, mehr Boten.<br>
     <b>Zeitraffer:</b> Regler unten ziehen oder ▶ drücken, dann wächst die Welt vom ersten Datum bis heute.<br>
     <b>Projektplan</b> (<kbd>G</kbd>): Balken je Aufgabe, rote Zone = Angriffsfenster, Flagge = Frist, Raute = Meilenstein. Die Linie ist die Zeit der Welt, an der Tagesleiste ziehen springt dorthin.<br>
-    <b>Frist verschieben:</b> vor den Spähern frei. Danach bleibt zurückgelassenes Belagerungsgerät liegen, das langsam zuwächst.</p>`;
+    <b>Frist verschieben:</b> vor „Frist naht“ frei. Danach bleibt zurückgelassenes Belagerungsgerät liegen, das langsam zuwächst.</p>`;
 }
 const thumbRuineCache={};
 function thumbRuine(stufe){ if(thumbRuineCache[stufe]) return thumbRuineCache[stufe];
@@ -3261,19 +3325,19 @@ function relTage(n){ return n<0?`vor ${-n} T`:n===0?"heute":n===1?"morgen":`in $
 function drohText(Z,L){
   const P=L.P, tage=P?P.d-tagVon(ZEIT):0;
   switch(L.phase){
-    case "spaeher": return `${TX.spaeher} · Frist ${relTage(tage)}`;
+    case "spaeher": return `${TX.spaeher} · ${relTage(tage)}`;
     case "lager": return `${TX.lager} · Frist ${relTage(tage)}`;
-    case "belagerung": return `${TX.belagerung} · ${TX.schlacht} morgen`;
-    case "schlacht": { const h=Math.max(0,P.T-ZEIT); return `${TX.schlacht} · noch ${Math.floor(h/STD)}:${String(Math.floor(h%STD/6e4)).padStart(2,"0")} h`; }
+    case "belagerung": return `${TX.belagerung} · Abgabe morgen 16:00`;
+    case "schlacht": { const h=Math.max(0,P.T-ZEIT); return `${TX.schlacht} · noch ${Math.floor(h/STD)}:${String(Math.floor(h%STD/6e4)).padStart(2,"0")} h bis zur Abgabe`; }
     case "ausstehend": return `${TX.schlacht} · wartet auf /world-update`;
-    case "sieg": return TX.verteidigt+"!"; case "verteidigt": return TX.verteidigt; case "abzug": return TX.abzug; case "brand": return TX.brennt;
+    case "sieg": return TX.verteidigt; case "verteidigt": return TX.verteidigt; case "abzug": return TX.abzug; case "brand": return TX.brennt;
   }
   return "";
 }
 function drohMarkerBauen(){
-  PAKETE.forEach(P=>{ const tl=tiles.find(t=>t.feld===P); if(!tl) return; const st=paketStand(P,ZEIT);
+  PAKETE.forEach(P=>{ const tl=tiles.find(t=>t.feld===P); if(!tl||!klammerDa(P)) return; const st=paketStand(P,ZEIT);
     neuerMarker(`<div class="pin pk"><span class="dot"></span><span class="t">${esc(P.titel)}</span><span class="d">${st.fertig}/${st.n}</span></div>`,()=>new V3(tl.feld._pos.x,1.45+tl.lift,tl.feld._pos.z),"badge3d",()=>waehle(P.id),{detail:true,reg:tl.feld._reg}); });
-  MS_FELDER.forEach(P=>{ const Z=P._ziel, tl=aktZelle(Z,ZEIT), L=Z._L||lage(Z,ZEIT), e=epocheBei(Z,ZEIT); if(!tl) return;
+  MS_FELDER.forEach(P=>{ const Z=P._ziel, tl=aktZelle(Z,ZEIT), L=Z._L||lage(Z,ZEIT), e=epocheBei(Z,ZEIT); if(!tl||!klammerDa(P)) return;
     if(L.phase==="ruhe"&&e.d<tagVon(ZEIT)-2) return;             // vergangene Meilensteine nur noch beim Drüberfahren
     const kl=L.phase==="ruhe"?"":" "+PHASE[L.phase].kl;
     neuerMarker(`<div class="pin ms${kl}"><span class="dot"></span><span class="t">${esc(P.titel)}</span><span class="d"${L.phase==="ruhe"?"":` data-dm="${esc(Z.id)}"`}>${esc(L.phase==="ruhe"?kurzDatum(e.d):drohText(Z,L))}</span></div>`,
@@ -3307,25 +3371,25 @@ function fokusZiel(Z,ms){ const tl=aktZelle(Z,ms); if(tl) Object.assign(cam.ziel
 function phasenLeiste(Z,L){
   const P=L.P; if(!P) return "";
   const ist={spaeher:0,lager:1,belagerung:2,schlacht:3,ausstehend:3,brand:4,sieg:4,verteidigt:4,abzug:4}[L.phase];
-  const st=[[TX.spaeher,tagVon(P.spaeher)],[TX.lager,tagVon(P.lager)],[TX.belagerung,P.d],[TX.schlacht,P.d+1],["Entscheidung 16:00",P.d+1]];
+  const st=[[TX.spaeher,tagVon(P.spaeher)],[TX.lager,tagVon(P.lager)],[TX.belagerung,P.d],[TX.schlacht,P.d+1],["Abgabe 16:00",P.d+1]];
   return `<div class="phasen">${st.map(([n,d],i)=>`<div class="${i===ist?"an":i<(ist??-1)?"war":""}"><b>${n}</b><span>${esc(kurzDatum(d))}</span></div>`).join("")}</div>`;
 }
 function fristBlock(Z){
   if(!Z) return "";
   const L=Z._L||lage(Z,ZEIT), e=epocheBei(Z,ZEIT), P=e.P, evs=ereignisse(Z), kl=PHASE[L.phase].kl||"";
   let h=`<h3>Frist</h3><div class="card"><div class="frist-kopf"><div><b>${esc(kurzDatum(P.d))}</b>`+
-    `<div class="muted">${Z.geerbt?`über Meilenstein <b>${esc(Z.geerbt.titel||Z.geerbt.id)}</b> · `:""}Entscheidung ${esc(kurzDatum(P.d+1))} um 16:00</div></div>`+
-    `<span class="pill ${kl}">${esc(L.phase==="ruhe"?(L.frei?"Kein Angriff":L.verloren?"Verloren":L.gewonnen?"Gehalten":"Ruhig"):PHASE[L.phase].name)}</span></div>`;
+    `<div class="muted">${Z.geerbt?`über Meilenstein <b>${esc(Z.geerbt.titel||Z.geerbt.id)}</b> · `:""}Abgabe ${esc(kurzDatum(P.d+1))} um 16:00</div></div>`+
+    `<span class="pill ${kl}">${esc(L.phase==="ruhe"?(L.frei?"Rechtzeitig fertig":L.verloren?"Abgabe verpasst":L.gewonnen?"Rechtzeitig fertig":"Im Plan"):PHASE[L.phase].name)}</span></div>`;
   if(L.phase!=="ruhe"||L.naechste) h+=phasenLeiste(Z,L.phase==="ruhe"?{P,phase:"ruhe"}:L);
-  if(L.phase==="ruhe"&&L.naechste) h+=`<p class="muted" style="margin-top:8px">Späher kommen ${esc(relTage(tagVon(L.naechste)-tagVon(ZEIT)))} (${esc(kurzDatum(tagVon(L.naechste)))}). Bis dahin darfst du die Frist frei verschieben.</p>`;
-  if(L.frei) h+=`<p class="muted" style="margin-top:8px">Fertig, bevor die Späher kamen: kein Angriff.</p>`;
-  if(L.phase==="ausstehend") h+=`<div class="note" style="margin-top:8px">16:00 ist vorbei, aber die Welt kennt den Stand seit ${esc(kurzDatum(D_STAND))} nicht. Nach dem nächsten <code>/world-update</code> fällt die Entscheidung.</div>`;
+  if(L.phase==="ruhe"&&L.naechste) h+=`<p class="muted" style="margin-top:8px">„Frist naht“ ${esc(relTage(tagVon(L.naechste)-tagVon(ZEIT)))} (${esc(kurzDatum(tagVon(L.naechste)))}), dann kommen die Kundschafter. Bis dahin darfst du die Frist frei verschieben.</p>`;
+  if(L.frei) h+=`<p class="muted" style="margin-top:8px">Fertig, bevor die Frist nahte: kein Angriff.</p>`;
+  if(L.phase==="ausstehend") h+=`<div class="note" style="margin-top:8px">16:00 ist vorbei, aber die Welt kennt den Stand seit ${esc(kurzDatum(D_STAND))} nicht. Nach dem nächsten <code>/world-update</code> wird die Abgabe ausgewertet.</div>`;
   if(evs.length){ h+=`<div class="verlauf">`;
     evs.forEach((ev,i)=>{ const idx=`${esc(Z.id)}|${i}`;
-      if(ev.art==="verschoben") h+=`<div>${ev.spur?ICON.spur:`<span class="ic"></span>`}<span>${esc(kurzDatum(tagVon(ev.ms)))}: Frist von ${esc(kurzDatum(ev.e.d))} auf ${esc(kurzDatum(tag(ev.e.nach)))} verschoben${ev.spur?" · <b>nach den Spähern</b>, Belagerungsgerät bleibt liegen":" · frei"}</span></div>`;
+      if(ev.art==="verschoben") h+=`<div>${ev.spur?ICON.spur:`<span class="ic"></span>`}<span>${esc(kurzDatum(tagVon(ev.ms)))}: Frist von ${esc(kurzDatum(ev.e.d))} auf ${esc(kurzDatum(tag(ev.e.nach)))} verschoben${ev.spur?" · <b>nach „Frist naht“</b>, Belagerungsgerät bleibt liegen":" · frei"}</span></div>`;
       if(ev.art==="neu") h+=`<div><span class="ic"></span><span>${esc(kurzDatum(tagVon(ev.ms)))}: neue Frist ${esc(kurzDatum(tag(ev.e.nach)))}</span></div>`;
-      if(ev.art==="brand") h+=`<div>${ICON.flamme}<span>${esc(kurzDatum(tagVon(ev.ms)))} 16:00: <b>abgebrannt</b>. Die Ruine bleibt, der Neubau entstand am Inselrand.</span><button class="mini" data-wieder="${idx}">ansehen</button></div>`;
-      if(ev.art==="sieg") h+=`<div>${ICON.schild}<span>${esc(kurzDatum(tagVon(ev.ms)))}: <b>verteidigt</b>, die Armee hat die Angreifer geschlagen.</span><button class="mini" data-wieder="${idx}">ansehen</button></div>`;
+      if(ev.art==="brand") h+=`<div>${ICON.flamme}<span>${esc(kurzDatum(tagVon(ev.ms)))} 16:00: <b>Abgabe verpasst</b>, das Gebäude brannte ab. Die Ruine bleibt, der Neubau entstand am Inselrand.</span><button class="mini" data-wieder="${idx}">ansehen</button></div>`;
+      if(ev.art==="sieg") h+=`<div>${ICON.schild}<span>${esc(kurzDatum(tagVon(ev.ms)))}: <b>rechtzeitig fertig</b>, die Angreifer wurden zurückgeschlagen.</span><button class="mini" data-wieder="${idx}">ansehen</button></div>`;
       if(ev.art==="abzug") h+=`<div>${ICON.schild}<span>${esc(kurzDatum(tagVon(ev.ms)))}: verworfen, die Angreifer sind abgezogen.</span></div>`; });
     h+=`</div>`; }
   return h+`</div>`;
@@ -3393,13 +3457,13 @@ function paneVerlauf(){
     if(tag(f.begonnen)!=null) ev.push({d:tag(f.begonnen),o:4,html:`${ICON2.start}<span>begonnen: <a data-feld="${esc(f.id)}">${esc(f.titel)}</a></span>`});
   });
   ZIELE.forEach(Z=>ereignisse(Z).forEach(e=>{ const t=`<a data-feld="${esc(Z.obj.id)}">${esc(Z.obj.titel)}</a>`;
-    if(e.art==="brand") ev.push({d:tagVon(e.ms),o:0,html:`${ICON.flamme}<span><b>abgebrannt:</b> ${t}</span>`});
-    if(e.art==="sieg") ev.push({d:tagVon(e.ms),o:0,html:`${ICON.schild}<span><b>verteidigt:</b> ${t}</span>`});
+    if(e.art==="brand") ev.push({d:tagVon(e.ms),o:0,html:`${ICON.flamme}<span><b>Abgabe verpasst:</b> ${t}</span>`});
+    if(e.art==="sieg") ev.push({d:tagVon(e.ms),o:0,html:`${ICON.schild}<span><b>rechtzeitig fertig:</b> ${t}</span>`});
     if(e.art==="verschoben"||e.art==="neu") ev.push({d:tagVon(e.ms),o:2,html:`${e.spur?ICON.spur:ICON2.pfeil}<span>Frist ${t} auf ${esc(kurzDatum(tag(e.e.nach)))}${e.spur?" (nach den Spähern)":""}</span>`}); }));
   (W.chronik||[]).forEach(c=>{ const d=tag(c.datum); if(d!=null) ev.push({d,o:5,html:`<span class="ic"></span><span class="muted">${esc(c.text)}</span>`}); });
   const liste=ev.filter(e=>e.d<=bis).sort((a,b)=>b.d-a.d||a.o-b.o);
   const hatCommits=felder.some(f=>(f.commits||[]).length);
-  let h=`<h2>Verlauf</h2><p class="muted" style="margin-top:-2px">Commits, fertige Aufgaben, Fristen und Schlachten, neueste zuerst.${hatCommits?"":" Commits pro Feld trägt der nächste <code>/world-update</code> ein."}</p>`;
+  let h=`<h2>Verlauf</h2><p class="muted" style="margin-top:-2px">Commits, fertige Aufgaben und Fristen, neueste zuerst.${hatCommits?"":" Commits pro Feld trägt der nächste <code>/world-update</code> ein."}</p>`;
   let tagAkt=null, n=0;
   for(const e of liste){ if(n++>220) break;
     if(e.d!==tagAkt){ if(tagAkt!==null) h+=`</div>`; tagAkt=e.d; h+=`<h3>${esc(kurzDatum(e.d))} · ${relText(e.d)}</h3><div class="verlauf2">`; }
@@ -3657,7 +3721,7 @@ function planZeichnen(){
     let bar="";
     if(Z){ const e=epocheBei(Z,ZEIT);
       if(e.aus!=="frei"&&e.aus!=="zu_spaet"&&e.aus!=="verschoben"){ const a=X(e.P.spaeher), b=X(e.aus==="sieg"||e.aus==="abzug"?Math.min(e.P.T,Z.eMs):e.P.T);
-        if(b>a) bar+=`<div class="droh" style="left:${a}px;width:${b-a}px" title="Späher ab ${esc(kurzDatum(tagVon(e.P.spaeher)))}, Entscheidung ${esc(kurzDatum(e.P.d+1))} 16:00"></div>`; } }
+        if(b>a) bar+=`<div class="droh" style="left:${a}px;width:${b-a}px" title="Frist naht ab ${esc(kurzDatum(tagVon(e.P.spaeher)))}, Abgabe ${esc(kurzDatum(e.P.d+1))} 16:00"></div>`; } }
     const p0=tag(f.plan_start);
     if(p0!=null&&Z){ const d=epocheBei(Z,ZEIT).d; bar+=`<div class="soll" style="left:${XD(p0)}px;width:${Math.max(4,XD(d+1)-XD(p0))}px" title="laut Plan ${esc(kurzDatum(p0))} – ${esc(kurzDatum(d))}"></div>`; }
     if(b0!=null||s0!=null){ const a=XD(b0??s0), ende=st==="fertig"||st==="verworfen"?(s0??D_HEUTE)+1:D_HEUTE+1;
@@ -3669,10 +3733,10 @@ function planZeichnen(){
         bar+=`<div class="flagge${letzt?"":" alt"}${Z.geerbt?" erbt":""}" style="left:${XD(e.d+1)}px" title="${letzt?"Frist":"alte Frist"} ${esc(kurzDatum(e.d))}"></div>`;
         if(!letzt){ const n=Z.epochen[i+1]; bar+=`<div class="schub" style="left:${XD(e.d+1)}px;width:${Math.abs(XD(n.d+1)-XD(e.d+1))}px;${n.d<e.d?"transform:scaleX(-1);transform-origin:left":""}"></div>`; } });
       ereignisse(Z).forEach(ev=>{
-        if(ev.art==="brand") bar+=`<span class="evt" style="left:${X(ev.ms)}px" title="abgebrannt ${esc(kurzDatum(tagVon(ev.ms)))} 16:00">${ICON.flamme}</span>`;
-        if(ev.art==="sieg") bar+=`<span class="evt" style="left:${X(ev.ms)}px" title="verteidigt">${ICON.schild}</span>`;
-        if(ev.art==="verschoben"&&ev.spur) bar+=`<span class="evt" style="left:${X(ev.ms)}px" title="nach den Spähern verschoben">${ICON.spur}</span>`; });
-      if(L&&["belagerung","schlacht","ausstehend"].includes(L.phase)) bar+=`<span class="evt puls" style="left:${X(L.P.T)}px" title="Entscheidung">${ICON.schwerter}</span>`;
+        if(ev.art==="brand") bar+=`<span class="evt" style="left:${X(ev.ms)}px" title="Abgabe verpasst ${esc(kurzDatum(tagVon(ev.ms)))} 16:00">${ICON.flamme}</span>`;
+        if(ev.art==="sieg") bar+=`<span class="evt" style="left:${X(ev.ms)}px" title="rechtzeitig fertig">${ICON.schild}</span>`;
+        if(ev.art==="verschoben"&&ev.spur) bar+=`<span class="evt" style="left:${X(ev.ms)}px" title="nach „Frist naht“ verschoben">${ICON.spur}</span>`; });
+      if(L&&["belagerung","schlacht","ausstehend"].includes(L.phase)) bar+=`<span class="evt puls" style="left:${X(L.P.T)}px" title="Abgabe 16:00">${ICON.schwerter}</span>`;
     }
     (f.commits||[]).forEach(c=>{ const d=tag(c.datum); if(d!=null&&d>=lo&&d<=hi) bar+=`<span class="cdot" style="left:${XD(d)+px/2}px" title="${esc(String(c.hash).slice(0,7))} ${esc(c.text||"")}"></span>`; });
     const tipp=L&&L.phase!=="ruhe"?`<span class="pdot ${PHASE[L.phase].kl}"></span>`:`<span class="pdot" style="background:${STATUS[st]?STATUS[st].farbe:"#888"}"></span>`;
@@ -3766,7 +3830,7 @@ if(VORSCHAU){
   const vu=new THREE.Clock(); (function lauf(){ const t=vu.getElapsedTime(); ANIM.forEach(a=>a.fn(t)); WIND.zeit.value=t; vw(t); vr.render(vs,vc); requestAnimationFrame(lauf); })();
 }else{
 baueMarker(); panel(); setzePlan(planOffen); schleife();
-if(/[?&]debug(&|=|$)/.test(location.search)) window.__gf={renderer,scene,ANIM,ANSICHT,marker:()=>marker,zeitSetzen:D=>zeitSetzen(D),D_MIN,D_HEUTE};   // nur zum Messen
+if(/[?&]debug(&|=|$)/.test(location.search)) window.__gf={renderer,scene,ANIM,ANSICHT,regionen,cam,marker:()=>marker,zeitSetzen:D=>zeitSetzen(D),D_MIN,D_HEUTE};   // nur zum Messen
 }
 window.__welt={PAKETE,KRIT,aktZelle,zeitMs:()=>ZEIT,ZIELE,lage,wiederhole,ereignisse,zeitSetzen,setzePlan,MS_FELDER,ANSICHT,SPUR,cam,tiles,waehle,treffer,setzeUmbau,regionen,screen:(v)=>{const p=v.clone().project(camera);return [(p.x+1)/2*innerWidth,(1-p.y)/2*innerHeight];},zelle:(reg,v)=>zellPos(reg,v)};
 })();

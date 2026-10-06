@@ -103,14 +103,16 @@ Clicking a box jumps to that place on the map.
 
 **Controls:** Everything sits in one bar at the bottom: *Project plan*, *Legend*, the time-lapse, *Rearrange*, *Performance* and, in the repo version, *World / Architecture*. The *?* button shows all keys and mouse actions. On smaller screens the bar shows only the icons.
 
-**Performance:** The button *◐ Normal* at the top switches between *Full* (all motion, fine shadows), *Normal* (fewer messengers, simpler shadows) and *Calm* (the surroundings stand still, no shadows, saves battery). Attacks always move. The browser remembers your choice; if your system asks for reduced motion, *Calm* is the default.
+**Performance:** The gauge button *Normal* in the controls dock at the bottom switches between *Full* (all motion, fine shadows), *Normal* (fewer messengers, simpler shadows) and *Calm* (everything stands still: attacks show as a still image without shots, explosions or lights, no shadows, saves battery). A fire still shows where a building burns. The browser remembers your choice; if your system asks for reduced motion, *Calm* is the default.
 
-**Rearrange:** Button *Rearrange* at the top (or **B**). Then drag a finished building with the left mouse button and drop it on another tile
+**Rearrange:** Button *Rearrange* in the bar at the bottom (or **B**). Then drag a finished building with the left mouse button and drop it on another tile
 **of the same island**: green frame = fits, red = not possible. On a landscape tile the building moves there,
 on another finished building the two swap places. Building sites and planned work stay where the agent puts them.
 The browser remembers the layout (per building), so it survives every `/world-update`. *Reset layout* puts everything back.
 
-**Time-lapse:** Drag the slider at the bottom or press ▶. The world grows from the first date until today, building sites appear and get finished.
+**Where the islands lie:** Every island keeps its own direction from the middle, taken from its position in the file: the first island sits in the centre, each next one in a fixed direction around it. When an island grows, the others only move further out along their direction, so the overall picture stays the same and only the gaps change. Add new areas at the end of `regions`; inserting one in the middle shifts the directions of all areas after it.
+
+**Time-lapse:** Drag the slider at the bottom or press ▶. The world grows from the first date until today, building sites appear and get finished. To keep it calm, only the large war airships show during the time-lapse; scouts, catapults, walls and shots appear for today and in a battle replay. Castles, cathedrals and their lines appear once one of their tasks is planned.
 It needs the dates `ended`/`started`, which `/world-update` fills in.
 
 **Project plan file:** `.ai/ganttfort/plan.mmd` is a Mermaid Gantt and the only source for deadlines and milestones.
@@ -129,30 +131,32 @@ every task has to meet its own. When everything is done, the tower gets a spire 
 
 **Deadlines and attacks:** If a task has a deadline, attackers come. They announce themselves:
 
-| Phase | When | What you see |
+| Phase (label) | When | What you see |
 |---|---|---|
-| Scouts | roughly in the last third of the time until the deadline (2–7 days before) | scouts circle over the tile |
-| Camp | 1–3 days before | a war airship lands at the island edge, the sky over the region turns reddish |
-| Siege | on the due day | catapults roll up, a town wall stands around the tile |
-| Battle | all of the next day | constant fire, the wall crumbles more and more until 16:00 |
-| **Decision** | **next day, 16:00** | done (`ended` ≤ next day) → your own army marches out and beats the attackers. Otherwise the building burns down. |
+| **Deadline ahead** · in 4 d | roughly in the last third of the time until the deadline (2–7 days before) | scouts circle over the tile |
+| **Final stretch** · due tomorrow | 1–3 days before | a war airship anchors at the island edge |
+| **Due today** | on the due day | catapults roll up, a town wall stands around the tile |
+| **Overdue** · 9:14 h to hand-in | all of the next day | constant fire, the wall crumbles more and more until 16:00 |
+| **Hand-in 16:00** | **next day, 16:00** | done (`ended` ≤ next day) → *Delivered on time*: the attackers are beaten back. Otherwise *Hand-in missed*: the building burns down. |
 
-- **Done earlier = earlier victory:** The army marches out as soon as the task is done. Done before the scouts: no attack at all.
+The labels use project language, the world shows the story. A deadline that is still far away shows *On track*.
+
+- **Done earlier = earlier victory:** The attackers are beaten back as soon as the task is done. Done before *Deadline ahead*: no attack at all.
 - **Fire:** The building burns until the next morning. The **burned ruin stays forever** on its tile; the rebuild
   goes up at the island edge. The ruin scars over: charred after 3 days, first green after 2 weeks, overgrown after a month,
   almost landscape again after two months. The memorial stone stays.
-- **Moving** (`/deadline … new date`): Free before the scouts. After that the attackers leave their **siege gear behind**,
+- **Moving** (`/deadline … new date`): Free before *Deadline ahead*. After that the attackers leave their **siege gear behind**,
   which rusts and slowly overgrows. Every move is shown in the panel and in the plan.
 - **Dropped:** never attacked. The tile shows the half-built building of this task, fenced off, and it can be moved when you rearrange.
 - **Milestones** (`/milestone`): a castle. On the date a large wave comes against the castle and every open
   task of the milestone (tasks without a deadline of their own inherit the date). Everything done: the castle flies golden banners.
 - **Watch a battle:** In the panel of a tile, every victory and fire has a "replay" link. The map plays that day as a time-lapse.
-- **World not up to date:** If 16:00 has passed but the data is older than the battle day, the battle goes on ("waiting for /world-update").
+- **World not up to date:** If 16:00 has passed but the data is older than the overdue day, the task stays *Overdue* ("waiting for /world-update").
 
 **Project plan** (button at the bottom left or **G**): a Gantt chart of all tasks with a deadline, building sites and recently finished work, by region.
 Bar = working time (orange building site, green done, dashed until the deadline), light frame = as planned, red zone = attack window, white flag = deadline,
-violet flag = inherited from the milestone, pale flag with arrow = old deadline, flame = burned down, shield = defended,
-warning triangle = moved after the scouts, diamonds = milestones. The cyan line is the time of the world: it runs live,
+violet flag = inherited from the milestone, pale flag with arrow = old deadline, flame = hand-in missed, shield = delivered on time,
+warning triangle = moved after *Deadline ahead*, diamonds = milestones. The cyan line is the time of the world: it runs live,
 follows the time-lapse, and **dragging along the day bar** jumps to a day. Clicking a row flies to the tile.
 
 **Demo:** `world.html?demo` opens the example world "Harbor Town App" (made up), whose data is computed relative to today. There you can see all phases at once.
@@ -171,7 +175,7 @@ View a single building: `world.html?preview=refactor:done:meadow&theme=medieval`
 repos, languages and theme, writes your profile, the rules and the islands, creates the first tiles from the last four weeks and suggests a plan.
 
 **Sidebar (three tabs):**
-- **Status:** "Recently" with the status report and the last three events of the past 7 days (done, dropped, defended, burned down, deadline moved, log), one card per island (color, warning sign, done/total, progress bar) and *Deadlines & attacks*. A click on an event opens the tile; a click on an island flies there and opens its tasks.
+- **Status:** "Recently" with the status report and the last three events of the past 7 days (done, dropped, delivered on time, hand-in missed, deadline moved, log), one card per island (color, warning sign, done/total, progress bar) and *Deadlines & attacks*. A click on an event opens the tile; a click on an island flies there and opens its tasks.
 - **Tasks:** the island cards as a filter ("All islands" removes it, the filter is kept when you reload) and all tasks by time: *Still this week* (overdue in red), *Next week*, *In 2 weeks*, *Later* (weeks from Monday to Sunday), then *No deadline* and *Done* (collapsed).
 - **Tile:** the tile you clicked, in the world or in a list: status, deadline with all phases, large package, predecessors and successors, explanation, commits, and ready-made commands to copy (`/deadline … date`, "Report done", `/explain`), because the map itself cannot write files. Milestones and large packages show here too.
 - The legend opens as a card over the world: "L Legend" at the front of the bar at the bottom left or key <kbd>L</kbd>, close with × or <kbd>Esc</kbd>. Legend and project plan close each other. In the Artifact there is a fourth tab *Project* for editing.
@@ -180,7 +184,7 @@ repos, languages and theme, writes your profile, the rules and the islands, crea
 **In the world:**
 - From the overview you only see the island names, each with its color, "(done/total)" (green when everything is done; follows the time slider) and warning signs: a yellow "!" from the scouts on, a pulsing red "!" from the camp on. Hovering over it names the affected tasks.
 - Clicking an island (building, terrain or name) brings it closer. Only up close does a click select a building.
-- Up close, for the island in the middle of the view, the names of building sites and building plots appear (finished buildings have no sign), as well as large packages, milestones and attacks.
+- Up close, for the island in the middle of the view, large packages, milestones, attacks and "New" badges appear. Task names show when you hover over a tile and in the panel.
 
 **Controls**
 
@@ -223,7 +227,7 @@ Ganttfort also runs as a Claude Artifact (no repo needed, a good way to start). 
 | `check_world.py`: "due changed … without an entry in moved" | Someone edited `world.json` by hand. Change deadlines only in `plan.mmd`. |
 | `check_world.py`: "section … matches no region" | The `section` in the plan must be named exactly like a region (name or id), e.g. `section App screens`. |
 | `check_world.py`: "… has id …, the task in the world is …" | The task in the plan and the tile in the world are the same thing with different ids. Put the tile's id in the plan. |
-| Battle "waiting for /world-update" | The map does not know whether you are done. Run `/world-update`, or set the task to `done` and run the check. |
+| "Overdue · waiting for /world-update" | The map does not know whether you are done. Run `/world-update`, or set the task to `done` and run the check. |
 
 ---
 
