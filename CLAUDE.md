@@ -26,7 +26,7 @@ This file is for working **on** Ganttfort. The file `template/CLAUDE.md` is a di
 |---|---|
 | `template/` | What users copy into their repo: the world `.ai/ganttfort/world.html` (three.js, ~3700 lines), theme `.ai/ganttfort/themes/medieval.js`, file format `schema.js` (English keys ↔ internal names), interface language `i18n.js` + `i18n-en.js`, checker `check_world.py`, Gantt sync `plan_sync.py`, one-time converter `convert_world.py`, license files, prompts (`.ai/prompts/`, `.claude/commands/`, `.github/prompts/`), `AGENTS.md`, `CLAUDE.md`, `GUIDE.md` |
 | `build/build_all.py` | One build step for everything (artifact, roadmap, tour, single file, release zips) |
-| `build/build_artifact.py` | Claude Artifact version → `build/dist/artifact/` (several files, storage via the artifact database) |
+| `build/build_artifact.py` | Claude Artifact version → `build/dist/artifact/` (several files, storage via the artifact database, no network) and `build/dist/claude/` (the same for claude.ai: three.js from jsdelivr and fonts from Google Fonts, text files only, so Claude can read and publish every file) |
 | `build/build_single_file.py` | Single-file version → `build/dist/single/ganttfort.html` (everything inlined incl. fonts, works offline, no external requests) |
 | `build/build_repo_demo.py` | Generates `template/.ai/ganttfort/world-demo.js` from `build/examples/demo.js` – **do not edit `world-demo.js` by hand** |
 | `build/examples/tour.js` | Guided tour for the public demo (`build/dist/tour/`) |
@@ -55,10 +55,11 @@ Quality rule for anything visible (buildings, units, landscape): look at it from
 2. Publish a GitHub release with the tag `v` + `VERSION` (e.g. `v0.2.0`). `release.yml` refuses a tag that does not match,
    attaches `ganttfort.html`, `ganttfort-template.zip` and `ganttfort-skill.zip`, and `pages.yml` updates the live demo.
 3. **Keep the maintainer's claude.ai Artifacts current** (*Ganttfort*, *Ganttfort Roadmap*, *Ganttfort Tour*): they are copies,
-   the repo is the source. With the Artifact tool, republish the files from `build/dist/artifact/` (the tour from
-   `build/dist/tour/`) **to the URL of each existing Artifact** (skill way A3). The world data lives in the Artifact database
-   and is kept. Afterwards the tab *Project* of each Artifact shows the new version. Never edit an Artifact by hand –
-   a change made only there is lost on the next update; bring it into the repo first.
+   the repo is the source. With the Artifact tool, republish the files of the claude.ai variant **to the URL of each existing
+   Artifact** (skill way A3): *Ganttfort* from `build/dist/claude/`, *Ganttfort Roadmap* from `build/dist/claude-roadmap/`,
+   *Ganttfort Tour* from `build/dist/claude-tour/`. Read every file before publishing (all are text). The world data lives in
+   the Artifact database and is kept. Afterwards the tab *Project* of each Artifact shows the new version. Never edit an
+   Artifact by hand – a change made only there is lost on the next update; bring it into the repo first.
 
 ## Game rules in one paragraph
 Tasks are buildings on islands (regions). A deadline brings attackers: scouts (2–7 days before, label "Deadline ahead"), camp (1–3 days before, war airship at the island edge, "Final stretch"), siege on the due day ("Due today"), battle the next day ("Overdue"), **hand-in the next day at 16:00**. Labels in the UI use project language, the 3D world shows the medieval story; internal phase keys stay `spaeher/lager/belagerung/schlacht`. Done by then (`done_at` counts to the minute): victory. Otherwise the building burns; the ruin stays forever and slowly overgrows, the rebuild appears at the island edge. Moving a deadline is free before the scouts arrive, afterwards siege gear is left behind. Milestones are castles (held = golden banners), large packages are church buildings. Details: `template/GUIDE.md`.

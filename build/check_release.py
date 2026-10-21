@@ -3,7 +3,8 @@
 
   python build/check_release.py
 
-1. release/ganttfort.html and the Artifact shell load nothing from the network.
+1. release/ganttfort.html and the Artifact shell load nothing from the network; the claude.ai variant only uses
+   cdn.jsdelivr.net and Google Fonts and has text files only.
 2. An old German world converts with convert_world.py and then passes check_world.py.
 3. The skill zip contains SKILL.md, every Artifact file and the template zip.
 
@@ -15,6 +16,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent
 RELEASE = ROOT / "release"
 ARTIFACT = HERE / "dist" / "artifact"
+CLAUDE = HERE / "dist" / "claude"
 TEMPLATE = ROOT / "template" / ".ai" / "ganttfort"
 
 OLD_WORLD = {   # a small world in the old German format (.ai/welt/welt.json)
@@ -50,6 +52,12 @@ check("Artifact shell loads nothing from the network", not external_refs(shell),
 missing = [s for s in re.findall(r'(?:src|href)="([^"]+)"', shell) if not s.startswith("data:") and not (ARTIFACT / s).exists()]
 check("every file the Artifact shell references exists", not missing, str(missing))
 
+claude_shell = (CLAUDE / "index.html").read_text(encoding="utf-8")
+hosts = {u.split("/")[2] for u in external_refs(claude_shell)}
+check("claude.ai variant only uses hosts allowed in Artifacts", hosts <= {"cdn.jsdelivr.net", "fonts.googleapis.com"}, str(hosts))
+binary = [p.name for p in CLAUDE.rglob("*") if p.is_file() and p.suffix not in (".html", ".js", ".css", ".md", "") and p.name != "LICENSE"]
+check("claude.ai variant contains only text files", not binary, str(binary))
+
 # 2. old world -> convert -> check
 with tempfile.TemporaryDirectory() as tmp:
     repo = pathlib.Path(tmp)
@@ -70,7 +78,7 @@ with tempfile.TemporaryDirectory() as tmp:
 # 3. skill zip
 with zipfile.ZipFile(RELEASE / "ganttfort-skill.zip") as z:
     names = set(z.namelist())
-need = {"ganttfort/SKILL.md", "ganttfort/ganttfort-template.zip"} | {"ganttfort/artifact/" + p.relative_to(ARTIFACT).as_posix() for p in ARTIFACT.rglob("*") if p.is_file()}
+need = {"ganttfort/SKILL.md", "ganttfort/ganttfort-template.zip"} | {"ganttfort/artifact/" + p.relative_to(CLAUDE).as_posix() for p in CLAUDE.rglob("*") if p.is_file()}
 check("skill zip contains SKILL.md, the Artifact files and the template", need <= names, str(sorted(need - names)[:5]))
 
 print("\nAll checks passed." if not failed else f"\n{len(failed)} check(s) failed.")

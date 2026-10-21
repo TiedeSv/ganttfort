@@ -9,6 +9,10 @@ dist/schema.js         English file format <-> internal names
 dist/i18n*.js          interface language (English, German)
 dist/demo.js           example world "Harbor Town App" (build/examples/demo.js), dates relative to today
 dist/themes/*.js       themes
+
+dist/../claude/        the same for claude.ai Artifacts: without three.min.js and fonts/, which load from
+                       cdn.jsdelivr.net and Google Fonts instead (both are allowed in Artifacts). Only text files
+                       remain, so Claude can read every file before it publishes them.
 """
 from __future__ import annotations
 import re, shutil
@@ -130,6 +134,23 @@ shutil.copytree(QUELLE / "lib" / "fonts", DIST / "fonts")
 shutil.copy(HIER / "src" / "THIRD_PARTY_NOTICES.md", DIST / "THIRD_PARTY_NOTICES.md")
 shutil.copy(HIER / "src" / "LICENSE", DIST / "LICENSE")
 print("built:", sorted(str(p.relative_to(DIST)) for p in DIST.rglob("*") if p.is_file()))
+
+# claude.ai variant: three.js and fonts from the CDNs that Artifacts allow, everything else identical
+CLAUDE = HIER / "dist" / "claude"
+shutil.rmtree(CLAUDE, ignore_errors=True)
+shutil.copytree(DIST, CLAUDE, ignore=lambda d, names: [n for n in names if n in ("three.min.js", "fonts")])
+GOOGLE = ("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600"
+          "&family=JetBrains+Mono:wght@400;500&family=Cinzel:wght@500;700&display=swap")
+shell = ersetze((CLAUDE / "index.html").read_text(encoding="utf-8"), '<link rel="stylesheet" href="fonts/fonts.css" data-lokale-schriften>',
+                f'<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="stylesheet" href="{GOOGLE}" data-lokale-schriften>')
+shell = ersetze(shell, '<script charset="utf-8" src="three.min.js"></script>',
+                '<script charset="utf-8" src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>')
+(CLAUDE / "index.html").write_text(shell, encoding="utf-8")
+notes = (CLAUDE / "THIRD_PARTY_NOTICES.md").read_text(encoding="utf-8")
+notes = ersetze(notes, "| MIT | `three.min.js`, shipped with the Artifact |", "| MIT | loaded at runtime from cdn.jsdelivr.net |")
+notes = ersetze(notes, "| SIL Open Font License 1.1 | `fonts/*.woff2`, shipped with the Artifact |", "| SIL Open Font License 1.1 | loaded at runtime from Google Fonts |")
+(CLAUDE / "THIRD_PARTY_NOTICES.md").write_text(notes, encoding="utf-8")
+print("built: dist/claude (for claude.ai Artifacts)")
 
 # demo world of the repo version from the same example world (one source: examples/demo.js)
 import subprocess, sys

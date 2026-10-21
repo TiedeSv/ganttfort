@@ -43,10 +43,10 @@ def zip_folder(target, source, prefix=""):
                 z.write(p, prefix + str(p.relative_to(source)))
 
 
-def copy_artifact(name, title, extra_script=None):
+def copy_artifact(name, title, extra_script=None, source="artifact"):
     target = DIST / name
     shutil.rmtree(target, ignore_errors=True)
-    shutil.copytree(DIST / "artifact", target)
+    shutil.copytree(DIST / source, target)
     idx = target / "index.html"
     html = idx.read_text(encoding="utf-8").replace("<title>Ganttfort</title>", f"<title>{title}</title>")
     if extra_script:
@@ -61,16 +61,18 @@ def build_skill():
     target.unlink(missing_ok=True)
     with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("ganttfort/SKILL.md", (ROOT / "skill" / "SKILL.md").read_text(encoding="utf-8").replace("{{VERSION}}", VERSION))
-        for p in sorted((DIST / "artifact").rglob("*")):
+        for p in sorted((DIST / "claude").rglob("*")):                       # claude.ai variant: text files only
             if p.is_file():
-                z.write(p, "ganttfort/artifact/" + p.relative_to(DIST / "artifact").as_posix())
+                z.write(p, "ganttfort/artifact/" + p.relative_to(DIST / "claude").as_posix())
         z.write(RELEASE / "ganttfort-template.zip", "ganttfort/ganttfort-template.zip")
 
 
 def main():
     run(HERE / "build_artifact.py")
     copy_artifact("roadmap", "Ganttfort Roadmap")
-    copy_artifact("tour", "Ganttfort Tour", "tour.js")
+    copy_artifact("tour", "Ganttfort Tour", "tour.js")                       # live demo on GitHub Pages (no network)
+    copy_artifact("claude-roadmap", "Ganttfort Roadmap", source="claude")    # the maintainer's claude.ai Artifacts
+    copy_artifact("claude-tour", "Ganttfort Tour", "tour.js", source="claude")
     run(HERE / "build_single_file.py")
     RELEASE.mkdir(exist_ok=True)
     shutil.copy(DIST / "single" / "ganttfort.html", RELEASE / "ganttfort.html")

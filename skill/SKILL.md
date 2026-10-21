@@ -23,8 +23,9 @@ Speak with the person in their language. The world itself has an English interfa
 | claude.ai chat, a Ganttfort Artifact already exists (link given or found in the person's artifacts) | **A2** – change the world, **A3** – update the engine |
 | A `world.json` from a repo should go into an Artifact, or the other way round | **A4** |
 
-This skill ships **Ganttfort {{VERSION}}**. Files that come with it: `artifact/` (the Artifact version, loads nothing from
-the network) and `ganttfort-template.zip` (what goes into a repo).
+This skill ships **Ganttfort {{VERSION}}**. Files that come with it: `artifact/` (the Artifact version: text files only;
+three.js loads from cdn.jsdelivr.net and the fonts from Google Fonts, both allowed in Artifacts) and
+`ganttfort-template.zip` (what goes into a repo).
 
 Which version runs where: an Artifact shows it in the tab *Project* (and `app.js` contains `const VERSION = "…"`),
 a repo has it in `.ai/ganttfort/VERSION`. If either is older than {{VERSION}}, offer the update (A3 or R step 2).
@@ -110,8 +111,7 @@ inside `ganttfort-template.zip`.
    - `icon`: `map`
    - `root`: the folder `artifact`
    - `files`: every other file in `artifact/` under the same path: `world.css`, `world-engine.js`, `app.js`, `schema.js`,
-     `i18n.js`, `i18n-en.js`, `demo.js`, `three.min.js`, `themes/medieval.js`, `fonts/fonts.css`, all `fonts/*.woff2`,
-     `LICENSE`, `THIRD_PARTY_NOTICES.md`
+     `i18n.js`, `i18n-en.js`, `demo.js`, `themes/medieval.js`, `LICENSE`, `THIRD_PARTY_NOTICES.md`
    - `capabilities`: `{"db": {"rules": [{"path": "", "read": "owner", "write": "owner"}]}, "user": {}}`
 4. Then create the world with `ArtifactData` `set`: collection `project`, document `world`, in the format above,
    `rev: 1`, `meta.theme: "medieval"`, `meta.lang` in the person's language, `log: [{"date": today, "text": "World created"}]`.
@@ -135,7 +135,8 @@ a backup). Do not write `projekt/welt`.
 
 Publish the files from `artifact/` again exactly as in A1 step 3, but **with the `url` of the existing Artifact** (read it
 first). The world lives in the database and is kept. For an old "Projektwelt" Artifact also remove the old engine files by
-passing `null` for `welt.css`, `welt-engine.js` and `themen/mittelalter.js`.
+passing `null` for `welt.css`, `welt-engine.js` and `themen/mittelalter.js`; for an Artifact that still has `three.min.js` or
+`fonts/` from an earlier version, pass `null` for those too.
 
 ## A4 – between repo and Artifact
 
