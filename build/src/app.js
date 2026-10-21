@@ -12,6 +12,8 @@
 (async function(){
 "use strict";
 const DOC = "project/world";
+const VERSION = /*VERSION*/"";              // set by build_artifact.py from the file VERSION
+window.GANTTFORT_VERSION = VERSION;
 const F = window.GF_FORMAT;
 const intern = w => F.toInternal(w).world, englisch = w => F.toEnglish(w).world;
 const MARKUP = /*MARKUP*/``;
@@ -574,6 +576,7 @@ window.WELT_EDIT = {
     if (MODUS === "fremd" || MODUS === "ohne") h += `<div class="look" style="margin-top:10px"><b>Eigene Welt?</b> Bitte deinen Claude: „Mach mir eine eigene Ganttfort-Welt aus dieser Vorlage“ und gib ihm den Link zu diesem Artifact. Er legt dir ein eigenes, privates Artifact an.</div>`;
     if (DARF) h += `<div class="aktionen">${K("projekt:", "Name, Thema, Lagebericht")}${K("arten:", "Arbeitsarten benennen")}</div>`;
     h += `<p class="muted">Thema: ${esc(THEMEN[m.thema || "scifi"] || m.thema)}</p>`;
+    if (VERSION) h += `<p class="muted">Ganttfort ${esc(VERSION)}</p>`;
     const liste = (titel, eintraege, neu) => `<div class="kopfzeile-a"><h3>${titel}</h3>${DARF && neu ? K(neu, "+ neu") : ""}</div><ul class="list">${eintraege || '<li class="muted">noch keine</li>'}</ul>`;
     h += liste("Sektoren", (w.regionen || []).map(r => `<li${DARF ? ` data-e="sektor:${esc(r.id)}"` : ""}><span class="pdot" style="background:#${((I && I.BIOME[r.biom] && I.BIOME[r.biom].top) || 0x4b6a4c).toString(16).padStart(6, "0")}"></span><span class="t">${esc(r.name)}</span><span class="r">${(w.felder || []).filter(f => f.region === r.id).length} Aufgaben</span></li>`).join(""), "sektor:");
     h += liste("Meilensteine", (w.meilensteine || []).slice().sort((a, b) => String(a.datum).localeCompare(String(b.datum))).map(q => `<li data-feld="ms-${esc(q.id)}"><span class="t">◆ ${esc(q.titel)}</span><span class="r">${esc(kurz(q.datum))}</span></li>`).join(""), "ms:");

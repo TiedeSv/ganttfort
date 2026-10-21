@@ -50,6 +50,16 @@ Then check visually:
 
 Quality rule for anything visible (buildings, units, landscape): look at it from 3–4 sides up close, and **with houses around it** (age 12 and 25 days). Check for floating parts, parts outside the hex (flat side at 0.87 · radius), twisted beams, hidden gables, overlaps, figures not facing their work, unintended readings (e.g. a crane that looks like a gallows). Only report done when it is clean.
 
+## Release checklist
+1. Set the new version in `VERSION` (e.g. `0.2.0`), update the roadmap below, commit, push; wait until the *Build* workflow is green.
+2. Publish a GitHub release with the tag `v` + `VERSION` (e.g. `v0.2.0`). `release.yml` refuses a tag that does not match,
+   attaches `ganttfort.html`, `ganttfort-template.zip` and `ganttfort-skill.zip`, and `pages.yml` updates the live demo.
+3. **Keep the maintainer's claude.ai Artifacts current** (*Ganttfort*, *Ganttfort Roadmap*, *Ganttfort Tour*): they are copies,
+   the repo is the source. With the Artifact tool, republish the files from `build/dist/artifact/` (the tour from
+   `build/dist/tour/`) **to the URL of each existing Artifact** (skill way A3). The world data lives in the Artifact database
+   and is kept. Afterwards the tab *Project* of each Artifact shows the new version. Never edit an Artifact by hand –
+   a change made only there is lost on the next update; bring it into the repo first.
+
 ## Game rules in one paragraph
 Tasks are buildings on islands (regions). A deadline brings attackers: scouts (2–7 days before, label "Deadline ahead"), camp (1–3 days before, war airship at the island edge, "Final stretch"), siege on the due day ("Due today"), battle the next day ("Overdue"), **hand-in the next day at 16:00**. Labels in the UI use project language, the 3D world shows the medieval story; internal phase keys stay `spaeher/lager/belagerung/schlacht`. Done by then (`done_at` counts to the minute): victory. Otherwise the building burns; the ruin stays forever and slowly overgrows, the rebuild appears at the island edge. Moving a deadline is free before the scouts arrive, afterwards siege gear is left behind. Milestones are castles (held = golden banners), large packages are church buildings. Details: `template/GUIDE.md`.
 

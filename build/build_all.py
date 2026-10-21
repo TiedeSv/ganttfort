@@ -18,6 +18,7 @@ import pathlib, shutil, subprocess, sys, zipfile
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent
 RELEASE = ROOT / "release"
+VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
 VORLAGE = ROOT / "template"
 DIST = HERE / "dist"
 
@@ -59,7 +60,7 @@ def build_skill():
     target = RELEASE / "ganttfort-skill.zip"
     target.unlink(missing_ok=True)
     with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as z:
-        z.write(ROOT / "skill" / "SKILL.md", "ganttfort/SKILL.md")
+        z.writestr("ganttfort/SKILL.md", (ROOT / "skill" / "SKILL.md").read_text(encoding="utf-8").replace("{{VERSION}}", VERSION))
         for p in sorted((DIST / "artifact").rglob("*")):
             if p.is_file():
                 z.write(p, "ganttfort/artifact/" + p.relative_to(DIST / "artifact").as_posix())
@@ -74,6 +75,8 @@ def main():
     RELEASE.mkdir(exist_ok=True)
     shutil.copy(DIST / "single" / "ganttfort.html", RELEASE / "ganttfort.html")
     zip_folder(RELEASE / "ganttfort-template.zip", VORLAGE)
+    with zipfile.ZipFile(RELEASE / "ganttfort-template.zip", "a", zipfile.ZIP_DEFLATED) as z:
+        z.writestr(".ai/ganttfort/VERSION", VERSION + "\n")      # which version a repo runs
     build_skill()
 
     if "--update" in sys.argv:

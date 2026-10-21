@@ -23,8 +23,11 @@ Speak with the person in their language. The world itself has an English interfa
 | claude.ai chat, a Ganttfort Artifact already exists (link given or found in the person's artifacts) | **A2** – change the world, **A3** – update the engine |
 | A `world.json` from a repo should go into an Artifact, or the other way round | **A4** |
 
-Files that come with this skill: `artifact/` (the Artifact version, loads nothing from the network) and
-`ganttfort-template.zip` (what goes into a repo).
+This skill ships **Ganttfort {{VERSION}}**. Files that come with it: `artifact/` (the Artifact version, loads nothing from
+the network) and `ganttfort-template.zip` (what goes into a repo).
+
+Which version runs where: an Artifact shows it in the tab *Project* (and `app.js` contains `const VERSION = "…"`),
+a repo has it in `.ai/ganttfort/VERSION`. If either is older than {{VERSION}}, offer the update (A3 or R step 2).
 
 ## Rules for every change to a world
 

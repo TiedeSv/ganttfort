@@ -16,6 +16,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Tag matches the file VERSION
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: test "$TAG" = "v$(cat VERSION | tr -d '[:space:]')"
       - name: Build
         run: python build/build_all.py
       - name: Check
