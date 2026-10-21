@@ -12,7 +12,8 @@
   // Captured parts are translated again (a date stays a date, "heute" becomes "today").
   const WD = "(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)", WDL = "(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)";
   const MON = "(?:January|February|March|April|May|June|July|August|September|October|November|December)";
-  const PH = { "{D}": "(" + WD + ", \\d{2}/\\d{2})", "{LD}": "(" + WDL + " \\d{1,2} " + MON + ")", "{I}": "(\\d{4}-\\d{2}-\\d{2})",
+  // the comma after the weekday depends on the browser's ICU version ("Wed, 21/10" or "Wed 21/10")
+  const PH = { "{D}": "(" + WD + ",? \\d{2}/\\d{2})", "{LD}": "(" + WDL + " \\d{1,2} " + MON + ")", "{I}": "(\\d{4}-\\d{2}-\\d{2})",
     "{N}": "(\\d+)", "{T}": "(\\d{1,2}:\\d{2})", "{X}": "(.+?)" };
   const expand = s => s.replace(/\{(?:D|LD|I|N|T|X)\}/g, m => PH[m]);
   const EXACT = new Map(Object.entries(window.GF_TEXTS_EN || {}));
