@@ -1,3 +1,5 @@
+<img src="docs/icon.svg" alt="" width="120" align="right">
+
 # Ganttfort
 
 *Your project plan as a fortified world.*
