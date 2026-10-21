@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Ganttfort">
+  <title>Ganttfort</title>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2e2619"/><stop offset="1" stop-color="#14100c"/>
+    </linearGradient>
+    <linearGradient id="land" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6a8a4a"/><stop offset="1" stop-color="#46663a"/>
+    </linearGradient>
+    <linearGradient id="stone" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f1e6cc"/><stop offset="1" stop-color="#d2c09a"/>
+    </linearGradient>
+    <linearGradient id="stoneSide" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#d9c8a2"/><stop offset="1" stop-color="#b9a57e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- hex tile, like the islands of the world -->
+  <polygon points="256,22 458,139 458,373 256,490 54,373 54,139" fill="url(#sky)" stroke="#e8b85a" stroke-width="16" stroke-linejoin="round"/>
+
+  <!-- island -->
+  <path d="M92 366 L256 312 L420 366 L256 424 Z" fill="url(#land)"/>
+  <path d="M92 366 L256 424 L256 446 L92 388 Z" fill="#33271b"/>
+  <path d="M420 366 L256 424 L256 446 L420 388 Z" fill="#251c14"/>
+
+  <!-- side towers -->
+  <g fill="url(#stoneSide)">
+    <path d="M132 206 h16 v-18 h14 v18 h14 v-18 h14 v18 h16 V392 H132 Z"/>
+    <path d="M308 206 h16 v-18 h14 v18 h14 v-18 h14 v18 h16 V392 H308 Z"/>
+  </g>
+  <rect x="160" y="236" width="12" height="28" rx="6" fill="#2a2016"/>
+  <rect x="340" y="236" width="12" height="28" rx="6" fill="#2a2016"/>
+
+  <!-- keep -->
+  <path d="M192 156 h20 v-24 h18 v24 h18 v-24 h16 v24 h18 v-24 h18 v24 h20 V404 H192 Z" fill="url(#stone)"/>
+
+  <!-- banner on the keep -->
+  <rect x="252" y="62" width="8" height="72" rx="3" fill="#8a7a5a"/>
+  <path d="M260 66 H316 L302 86 L316 106 H260 Z" fill="#c8483a"/>
+
+  <!-- the plan on the wall: three Gantt bars -->
+  <rect x="204" y="180" width="64" height="22" rx="6" fill="#e8b85a"/>
+  <rect x="232" y="212" width="76" height="22" rx="6" fill="#7fb34a"/>
+  <rect x="214" y="244" width="58" height="22" rx="6" fill="#e8903a"/>
+
+  <!-- gate -->
+  <path d="M226 404 V330 a30 30 0 0 1 60 0 V404 Z" fill="#2a2016"/>
+  <path d="M238 404 V334 a18 18 0 0 1 36 0 V404" fill="none" stroke="#5a4630" stroke-width="4"/>
+</svg>

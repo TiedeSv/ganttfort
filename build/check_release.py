@@ -47,7 +47,7 @@ single = (RELEASE / "ganttfort.html").read_text(encoding="utf-8")
 check("single file loads nothing from the network", not external_refs(single), str(external_refs(single)[:3]))
 shell = (ARTIFACT / "index.html").read_text(encoding="utf-8")
 check("Artifact shell loads nothing from the network", not external_refs(shell), str(external_refs(shell)[:3]))
-missing = [s for s in re.findall(r'(?:src|href)="([^"]+)"', shell) if not (ARTIFACT / s).exists()]
+missing = [s for s in re.findall(r'(?:src|href)="([^"]+)"', shell) if not s.startswith("data:") and not (ARTIFACT / s).exists()]
 check("every file the Artifact shell references exists", not missing, str(missing))
 
 # 2. old world -> convert -> check
