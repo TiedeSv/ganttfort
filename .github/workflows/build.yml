@@ -1,0 +1,27 @@
+# Builds and checks everything on every push and pull request, so a broken build never reaches a release.
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build (Artifact, tour, single file, template, skill)
+        run: python build/build_all.py
+      - name: Check the build output
+        run: python build/check_release.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ganttfort-release
+          path: release/

@@ -1,0 +1,32 @@
+# When a release is published on GitHub: build, check, and attach the three files to it.
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build
+        run: python build/build_all.py
+      - name: Check
+        run: python build/check_release.py
+      - name: Attach files to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          gh release upload "$TAG" \
+            release/ganttfort.html \
+            release/ganttfort-template.zip \
+            release/ganttfort-skill.zip \
+            --clobber
