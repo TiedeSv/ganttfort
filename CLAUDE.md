@@ -38,7 +38,9 @@ This file is for working **on** Ganttfort. The file `template/CLAUDE.md` is a di
 ## Build and check
 ```
 python build/build_all.py            # Python 3.8+, no other dependencies
+python build/check_release.py        # no network requests, old world converts + passes, skill zip complete
 ```
+CI (`.github/workflows/`): `build.yml` builds and checks every push; `release.yml` attaches `ganttfort.html`, the template zip and the skill zip to every published GitHub release; `pages.yml` publishes the tour as the live demo on GitHub Pages.
 Then check visually:
 - `template/.ai/ganttfort/world.html?demo` in a browser (demo world relative to today; `&now=2026-10-07T15:58` simulates a time, `&lang=de` German interface).
 - Single building: `world.html?theme=medieval&preview=<type>:done:meadow[:angle:age:zoom]`.
@@ -58,9 +60,9 @@ Tasks are buildings on islands (regions). A deadline brings attackers: scouts (2
 | Data source (repo leads, Artifact as entry, export/import) | 07.10. | done 05.10.: repo leads, the Artifact is a copy (export/import as JSON, `template/GUIDE.md` → "Repo and Claude Artifact"); old Artifact worlds (`projekt/welt`) move to `project/world` on the owner's first open, the old document stays as a backup |
 | Engine + Artifact app on the English format | 09.10. | done 05.10. (engine keeps internal names, converts on load/save) |
 | UI texts English by default, German switchable (`meta.lang`) | 10.10. | done 05.10. (`i18n.js`, `i18n-en.js`) |
-| English README, guide, agent rules, prompts | 10.10. | done 05.10.; code comments in engine/theme are still German |
+| English README, guide, agent rules, prompts | 10.10. | done 05.10.; code comments translated 21.10. |
 | One skill for Claude Code and claude.ai chat | 11.10. | done 06.10.: `skill/SKILL.md` → `release/ganttfort-skill.zip` (repo setup, new Artifact, change a world, update an Artifact, repo ↔ Artifact). Still to try once on claude.ai. The old `projektwelt` skill expects the German format – do not use it any more. |
-| Public repo (license, README, sponsor links, releases) | 13.10. | open: GitHub Sponsors + Ko-fi via `.github/FUNDING.yml`; GitHub Action that builds `ganttfort.html` per release. `LICENSE`/`THIRD_PARTY_NOTICES.md` already moved to `template/.ai/ganttfort/`. |
-| Tour world as public live demo | 14.10. | English tour (`build/dist/tour/`); fonts and three.js are shipped with the Artifact version since 06.10. (no network requests). Open: publish it. |
+| Public repo (license, README, sponsor links, releases) | 13.10. | prepared 21.10.: README with screenshot, `.github/FUNDING.yml` (GitHub Sponsors; Ko-fi name still missing), release and build workflows, `build/check_release.py`. Open: create the GitHub repo, push, enable Pages and Sponsors, publish v0.1.0. |
+| Tour world as public live demo | 14.10. | ready 21.10.: `pages.yml` publishes `build/dist/tour/` to GitHub Pages on every release (works offline, EN + `?lang=de`). Open: first release. |
 
 The roadmap is also kept as a Ganttfort world in a claude.ai Artifact owned by the maintainer; update it from a claude.ai session, not from here.
