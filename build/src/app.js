@@ -1,13 +1,13 @@
 /* =====================================================================================
-   Ganttfort als Artifact: Speicher, Einrichtung und Bearbeiten.
-   Die Welt selbst (welt-engine.js) liest window.WELT und ruft window.WELT_EDIT für Knöpfe und Formulare.
+   Ganttfort as a Claude Artifact: storage, setup and editing.
+   The world itself (world-engine.js) reads the world data and calls window.WELT_EDIT for buttons and forms.
 
-   Gespeichert wird genau ein Dokument:  project/world  = { meta, regions, tasks, milestones, packages, log, report, rev }
-   im englischen Dateiformat (schema.js). Intern arbeiten App und Welt mit den internen Namen (GF_FORMAT.toInternal/toEnglish).
-   Regeln, die hier durchgesetzt werden (und die auch Claude beim Schreiben einhält):
-   · Eine Frist wird nie still geändert: Jede Verschiebung hängt {am, von, nach, grund} an „verschoben“ an.
-   · Einträge in „verschoben“ und Meilensteine werden nie gelöscht.
-   · Fertig und verworfen gelten ab jetzt (seit = heute, fertig_um = Uhrzeit), nicht rückwirkend.
+   Exactly one document is stored:  project/world  = { meta, regions, tasks, milestones, packages, log, report, rev }
+   in the English file format (schema.js). Internally app and world use the internal names (GF_FORMAT.toInternal/toEnglish).
+   Rules enforced here (and followed by Claude when writing):
+   · A deadline is never changed silently: every move appends {on, from, to, reason} to "moved".
+   · Entries in "moved" and milestones are never deleted.
+   · Done and dropped count from now (ended = today, done_at = time of day), never backdated.
    ===================================================================================== */
 (async function(){
 "use strict";
@@ -33,7 +33,7 @@ const neueId = (t, vergeben) => { let b = slug(t), id = b, i = 2; while (vergebe
 const merke = (k, v) => { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 const hole = k => { try { const v = sessionStorage.getItem(k); sessionStorage.removeItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } };
 
-// ---------- Arbeitsarten: allgemeine Namen für die Gebäudetypen ----------
+// ---------- Work types: general names for the building types ----------
 const ARTEN = {
   feature:     { name: "Erstellen",     sinn: "Etwas Neues entsteht: ein Ergebnis, das es vorher nicht gab." },
   doku:        { name: "Schreiben",     sinn: "Text, Bericht, Kapitel, Protokoll: Wissen wird festgehalten." },
@@ -54,7 +54,7 @@ const ART_REIHE = Object.keys(ARTEN);
 const THEMEN = { mittelalter: "Mittelalter", scifi: "Sci-Fi (Kolonie)" };
 const BIOM_REIHE = ["wiese", "wald", "steppe", "fels", "sand", "schnee", "vulkan"];
 
-// ---------- Oberfläche aufbauen ----------
+// ---------- Build the interface ----------
 document.body.insertAdjacentHTML("afterbegin", MARKUP);
 
 // ---------- Speicher ----------
@@ -68,7 +68,7 @@ let schreibRecht = null;
 try { schreibRecht = nutzer && nutzer.can ? await nutzer.can("data.write") : null; } catch (e) { schreibRecht = null; }
 const darfWohl = besitzer || schreibRecht === true;
 
-let ROH = null;                       // gespeicherter Stand, unverändert
+let ROH = null;                       // stored state, unchanged
 if (db) {
   ladeText("Welt wird geladen …");
   for (let versuch = 0; versuch < 2 && ROH === null; versuch++) {
@@ -77,34 +77,34 @@ if (db) {
   }
   if (ROH === false) ROH = null;
 }
-// Einmaliger Umzug aus der deutschen Fassung: Dort lag die Welt im Dokument „projekt/welt“ im alten Format.
-// Das alte Format entspricht genau den internen Namen, also genügt englisch(). Das alte Dokument bleibt als Sicherung liegen.
+// One-time move from the German version: there the world was in the document "projekt/welt" in the old format.
+// The old format matches the internal names exactly, so englisch() is enough. The old document stays as a backup.
 const ALT_DOC = "projekt/welt";
 let UMGEZOGEN = false;
 if (db && ROH === null && darfWohl) {
   try {
     const s = await db.doc(ALT_DOC).get(), alt = s.exists ? s.data() : null;
     if (alt && F.isOldFormat(alt)) {
-      alt.meta = alt.meta || {}; if (!alt.meta.lang) alt.meta.lang = "de";   // alte Welten sind deutsch geschrieben
+      alt.meta = alt.meta || {}; if (!alt.meta.lang) alt.meta.lang = "de";   // old worlds are written in German
       alt.rev = (alt.rev || 0) + 1;
       const neu = englisch(alt);
       await db.doc(DOC).set(neu);
       ROH = intern(neu); UMGEZOGEN = true;
     }
-  } catch (e) { /* kein altes Dokument oder kein Zugriff: dann beginnt die Einrichtung wie bisher */ }
+  } catch (e) { /* no old document or no access: setup starts as before */ }
 }
 if (ROH) ROH = klon(ROH);
 
-// eigen = echte Welt · neu = Besitzer, noch keine Welt · fremd = jemand anderes öffnet den Link · ohne = kein Speicher
+// eigen = real world · neu = owner, no world yet · fremd = someone else opens the link · ohne = no storage
 const MODUS = ROH ? "eigen" : db && darfWohl ? "neu" : db ? "fremd" : "ohne";
 const DARF = MODUS === "eigen" && darfWohl;
 const DATEN = ROH ? klon(ROH) : intern(window.DEMO_WORLD());
 DATEN.meta = DATEN.meta || {};
-DATEN.meta.stand = heute();          // die Welt ist live: Sie kennt den Stand von jetzt
+DATEN.meta.stand = heute();          // the world is live: it knows the state of right now
 GF_I18N.protect(englisch(DATEN)); GF_I18N.start(GF_I18N.langFrom(DATEN));
 window.WELT = DATEN;
 
-// ---------- Thema und Arbeitsarten ----------
+// ---------- Theme and work types ----------
 const thema = DATEN.meta.thema;
 if (thema && thema !== "scifi" && /^[\w-]+$/.test(thema)) {
   ladeText("Thema wird geladen …");
@@ -119,7 +119,7 @@ ART_REIHE.forEach(k => {
   window.THEMA.typen[k] = Object.assign({}, window.THEMA.typen[k] || {}, { name: (typeof n === "string" && n.trim()) || ARTEN[k].name, sinn: ARTEN[k].sinn });
 });
 
-// ---------- Regeln (Prüfung vor jedem Speichern) ----------
+// ---------- Rules (checked before every save) ----------
 const STATUS_OK = ["fertig", "in_arbeit", "geplant", "verworfen"];
 function pruefe(w) {
   const f = [];
@@ -161,7 +161,7 @@ function pruefe(w) {
   (w.pakete || []).forEach(p => (p.felder || []).forEach(id => { if (!ids.has(id)) f.push(`Großpaket „${p.titel}“: Aufgabe ${id} gibt es nicht.`); }));
   return f;
 }
-// Fristen verschiebt nur der Mensch, und jede Verschiebung bleibt sichtbar
+// only the person moves deadlines, and every move stays visible
 function pruefeFristtreue(alt, neu) {
   const f = [];
   const vergl = (wer, a, b, key) => {
@@ -263,7 +263,7 @@ function hakenSuche(form) {
   }));
 }
 
-// ---------- Aufgabe anlegen / bearbeiten ----------
+// ---------- Create / edit a task ----------
 function paketVon(w, id) { return (w.pakete || []).find(p => (p.felder || []).includes(id)); }
 function msVon(w, id) { return (w.meilensteine || []).find(m => (m.felder || []).includes(id)); }
 function darfLoeschen(x) { return x.angelegt === heute() || (!x.faellig && !(x.verschoben || []).length && x.status === "geplant"); }
@@ -337,7 +337,7 @@ function aufgabeDialog(id, vorgabe) {
   };
 }
 
-// ---------- Frist setzen oder verschieben ----------
+// ---------- Set or move a deadline ----------
 function fristDialog(art, id, vorschlag) {
   const w = ROH, liste = art === "meilenstein" ? w.meilensteine : w.felder, key = art === "meilenstein" ? "datum" : "faellig";
   const o = (liste || []).find(q => q.id === id); if (!o) return;
@@ -386,7 +386,7 @@ function setzeStatus(id, aktion) {
   });
 }
 
-// ---------- Meilenstein, Großpaket, Sektor ----------
+// ---------- Milestone, large package, region ----------
 function meilensteinDialog(id) {
   const w = ROH, m = id ? (w.meilensteine || []).find(q => q.id === id) : null;
   const inhalt = `
@@ -504,7 +504,7 @@ function importDialog() {
   };
 }
 
-// ---------- Einrichtung (noch keine Welt) ----------
+// ---------- Setup (no world yet) ----------
 function einrichtung() {
   const inhalt = `<p class="lead">Jede Aufgabe wird ein Gebäude auf einer Insel. Nähert sich eine Frist, kommen Angreifer. Ist die Aufgabe rechtzeitig fertig, schlägt deine Armee sie zurück, sonst brennt das Gebäude nieder und die Ruine bleibt.</p>
     <label class="feld"><span class="lbl">Projektname</span><input name="projekt" maxlength="80" placeholder="z. B. Umzug, Abschlussarbeit, Vereinsfest"></label>
@@ -527,7 +527,7 @@ function einrichtung() {
   };
 }
 
-// ---------- Knöpfe in der Welt (von welt-engine.js aufgerufen) ----------
+// ---------- Buttons in the world (called by world-engine.js) ----------
 const K = (a, t, cls = "") => `<button type="button" class="mini ${cls}" data-e="${a}">${t}</button>`;
 function statusKnoepfe(f) {
   const s = f.status, b = [];
@@ -615,7 +615,7 @@ window.WELT_EDIT = {
     if (wahl) I.waehle(wahl, !!(ui && ui.tab && ui.tab !== "feld"));
     else if (ui && ui.auswahl) I.waehle(ui.auswahl, true);
     if (ui && ui.scroll) { const p = document.getElementById("pane"); if (p) p.scrollTop = ui.scroll; }
-    // keine Hinweisleiste mehr über der Welt (Beispielwelt/Vorlage): Infos stehen im Reiter Projekt
+    // no notice bar over the world any more (example world/template): the info is in the Project tab
     if (MODUS === "neu" && !ui) einrichtung();
     if (UMGEZOGEN) zeigeHinweis("Deine Welt wurde ins neue Format übernommen. Die alte Fassung bleibt als Sicherung gespeichert.");
     beobachte();
@@ -623,7 +623,7 @@ window.WELT_EDIT = {
 };
 const PLAN_AKT = () => { const k = document.getElementById("planKoerper"); return k && k.querySelector(".skala") ? { px: (k.querySelector(".skala .tg") || {}).offsetWidth || 20 } : null; };
 
-// Klicks auf data-e (Panel, Dialog-freie Knöpfe)
+// clicks on data-e (panel, buttons without a dialog)
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-e]"); if (!b) return;
   e.stopPropagation(); e.preventDefault();
@@ -657,7 +657,7 @@ function banner() {
   document.body.appendChild(d);
 }
 
-// ---------- Änderungen von außen (z. B. Claude) ----------
+// ---------- Changes from outside (e.g. Claude) ----------
 function beobachte() {
   if (MODUS !== "eigen" || !db) return;
   let erst = true;
@@ -670,7 +670,7 @@ function beobachte() {
   }, () => {});
 }
 
-// ---------- Welt starten ----------
+// ---------- Start the world ----------
 ladeText("Welt wird gebaut …");
 if (!window.THREE) { ladeText("Die 3D-Bibliothek konnte nicht geladen werden. Lade die Seite neu."); return; }
 const s = document.createElement("script"); s.charset = "utf-8"; s.src = "world-engine.js";

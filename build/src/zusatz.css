@@ -1,6 +1,6 @@
 
 /* =========================================================
-   Artifact-Zusätze: Laden, Bearbeiten, Dialoge
+   Artifact additions: loading, editing, dialogs
    ========================================================= */
 :root{color-scheme:dark}
 html,body{background-color:#0d1219}
@@ -32,7 +32,7 @@ html,body{background-color:#0d1219}
   backdrop-filter:blur(8px);font-size:13px;color:var(--ink2)}
 .banner b{color:var(--amber);font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase}
 
-/* Frist-Flaggen und Meilenstein-Rauten im Plan ziehen */
+/* drag deadline flags and milestone diamonds in the plan */
 .flagge[data-zieh]{cursor:ew-resize;transform:translateX(var(--dx,0px))}
 .flagge[data-zieh]::before{content:"";position:absolute;left:-6px;right:-8px;top:-3px;bottom:-3px}
 .raute[data-zieh]{cursor:ew-resize;transform:translateX(var(--dx,0px)) rotate(45deg)}
@@ -114,7 +114,7 @@ body.panel-zu .plan{right:16px}
   body.panel-zu .banner{bottom:60px}
 }
 
-/* Hinweisleiste rechts oben über der Welt: nicht über dem Projektnamen und nicht über dem Knopf der Seitenleiste */
+/* notice bar at the top right over the world: not over the project name and not over the sidebar button */
 .banner{left:auto;right:calc(452px + 64px);transform:none;max-width:min(560px,calc(100vw - 452px - 500px))}
 body.panel-zu .banner{left:auto;right:64px;max-width:min(620px,calc(100vw - 560px))}
 .panel-griff{z-index:9}

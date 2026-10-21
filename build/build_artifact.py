@@ -27,17 +27,17 @@ engine = html[start + 8: html.rindex("</script>")]
 
 def ersetze(text, alt, neu, anzahl=1):
     n = text.count(alt)
-    assert n == anzahl, f"{n}× gefunden statt {anzahl}×: {alt[:80]!r}"
+    assert n == anzahl, f"found {n}× instead of {anzahl}×: {alt[:80]!r}"
     return text.replace(alt, neu)
 
 
 E = engine
-# Tastenkürzel nicht auslösen, während man in Formularen tippt
+# do not trigger keyboard shortcuts while typing in forms
 E = E.replace('e.target.tagName==="TEXTAREA"', 'EINGABE(e)').replace('e.target.tagName!=="TEXTAREA"', '!EINGABE(e)')
 E = ersetze(E, 'const W = window.WELT;', 'const W = window.WELT;\nconst EINGABE=e=>!!(e.target&&e.target.closest&&e.target.closest("input,textarea,select,[contenteditable],.dlg"));\nconst ED=()=>window.WELT_EDIT||null;')
-# Architektur-Ansicht (Mermaid, Code-Projekte) gibt es im Artifact nicht
+# the architecture view (Mermaid, code projects) does not exist in the Artifact
 E = ersetze(E, 'addEventListener("keydown",e=>{ if(!EINGABE(e) && e.key.toLowerCase()==="m") setzeAnsicht(ansicht==="welt"?"arch":"welt"); });', '')
-# Feld-Panel: Aktionen oben, Notiz statt Hinweis auf /explain
+# tile panel: actions at the top, note instead of the hint to /explain
 E = ersetze(E, '${f.seit?`<div class="muted">${f.status==="fertig"?"fertig seit":"seit"} ${esc(f.seit)}</div>`:""}</div></div>`+fristBlock(f._ziel)+abhBlock(f);',
                '${f.seit?`<div class="muted">${f.status==="fertig"?"fertig seit":"seit"} ${esc(f.seit)}</div>`:""}</div></div>`+(ED()?ED().feld(f):"")+fristBlock(f._ziel)+abhBlock(f);')
 E = ersetze(E, '  if(!Object.keys(e).length) h+=`<p class="muted" style="margin-top:16px">Noch keine Erklärung.',
@@ -45,10 +45,10 @@ E = ersetze(E, '  if(!Object.keys(e).length) h+=`<p class="muted" style="margin-
 E = ersetze(E, '    ${m.beschreibung?`<p class="lead" style="margin-top:12px">${esc(m.beschreibung)}</p>`:""}',
                '    ${ED()?ED().meilenstein(m):""}${m.beschreibung?`<p class="lead" style="margin-top:12px">${esc(m.beschreibung)}</p>`:""}')
 E = ersetze(E, '    <p class="lead">Ein Großpaket hat keine eigene Frist:', '    ${ED()?ED().paket(P):""}<p class="lead">Ein Großpaket hat keine eigene Frist:')
-# Aufgaben-Tab: Menü mit direkten Aktionen statt kopierter Befehle, Knopf für neue Aufgabe
+# tasks tab: menu with direct actions instead of copied commands, button for a new task
 E = ersetze(E, '      if(AMENUE===f.id){ const vor=', '      if(AMENUE===f.id&&ED()){ h+=ED().menue(f,d); }\n      else if(AMENUE===f.id){ const vor=')
 E = ersetze(E, '  let h=`<h2>Aufgaben</h2><div class="chips">', '  let h=`<div class="kopfzeile-a"><h2>Aufgaben</h2>${ED()?ED().neuKnopf():""}</div><div class="chips">')
-# Plan-Hinweise und Texte, die auf Slash-Befehle zeigen
+# plan hints and texts that point to slash commands
 E = ersetze(E, 'function planHinweis(){\n', 'function planHinweis(){\n  if(ED()) return ED().planHinweis();\n')
 E = ersetze(E, "'<li class=\"muted\">nichts geplant – <code>/world-plan</code> legt einen Plan an</li>'",
                "(ED()?'<li class=\"muted\">nichts geplant · neue Aufgaben legst du im Tab Aufgaben an</li>':'<li class=\"muted\">nichts geplant – <code>/world-plan</code> legt einen Plan an</li>')")
@@ -56,25 +56,25 @@ E = ersetze(E, '  h+=`<h3>Neu seit dem letzten Update</h3>', '  if(ED()) h+=ED()
 E = ersetze(E, '${hatCommits?"":" Commits pro Feld trägt der nächste <code>/world-update</code> ein."}', '${hatCommits||ED()?"":" Commits pro Feld trägt der nächste <code>/world-update</code> ein."}')
 E = ersetze(E, 'zeitEl.title="Der Zeitraffer braucht Datumsangaben (seit/begonnen). Sie kommen mit dem nächsten /world-update.";',
                'zeitEl.title="Der Zeitraffer braucht Datumsangaben: Er füllt sich, sobald Aufgaben begonnen oder fertig werden.";')
-# Tabs: neuer Tab „Projekt“, Verdrahtung der Bearbeiten-Knöpfe
+# tabs: new tab "Project", wiring of the edit buttons
 E = ersetze(E, '({heute:paneHeute,aufgaben:paneAufgaben,feld:paneFeld,verlauf:paneVerlauf,inseln:paneInseln,legende:paneLegende})[tab]()',
                '({heute:paneHeute,aufgaben:paneAufgaben,feld:paneFeld,verlauf:paneVerlauf,inseln:paneInseln,legende:paneLegende,projekt:()=>ED()?ED().projekt():""})[tab]()')
 E = ersetze(E, 'function verdrahte(){\n', 'function verdrahte(){\n  if(ED()) ED().verdrahte(pane);\n')
-# Innenleben für app.js zugänglich machen (vor dem ersten panel())
-E = ersetze(E, '/* ---------- Kopf ---------- */',
+# make the internals accessible to app.js (before the first panel())
+E = ersetze(E, '/* ---------- Header ---------- */',
             'window.__weltIntern={felder,feldNach,regionen,proRegion,MEILENSTEINE,MS_FELDER,PAKETE,ZIELE,KRIT,NACHFOLGER,TYPEN,STATUS,BIOME,TX,lage,epocheBei,phasen,'
             'tag,tagText,tagVon,lokal,kurzDatum,esc,toast,kopiere,waehle,panel,fristVon,statusAm,planZeichnen,alleZeigen,'
             'zeit:()=>ZEIT, heute:()=>D_HEUTE, tab:(t)=>{ if(t){ tab=t; if(LISTE) LISTE_SONDER=(t==="projekt"||t==="legende")?t:null; panel(); } return tab; }, auswahl:()=>auswahl, planOffen:()=>planOffen, setzePlan:(a)=>setzePlan(a), cam:()=>cam};\n'
-            '/* ---------- Kopf ---------- */')
+            '/* ---------- Header ---------- */')
 # Nach dem Start: app.js darf Auswahl, Tab usw. wiederherstellen
 E = ersetze(E, 'baueMarker(); panel(); setzePlan(planOffen); schleife();', 'baueMarker(); panel(); setzePlan(planOffen); schleife(); if(ED()&&ED().bereit) ED().bereit();')
-# Frist-Flaggen im Plan ziehbar machen: Zeile + Datum an app.js melden
+# make deadline flags in the plan draggable: report row + date to app.js
 E = ersetze(E, '        bar+=`<div class="flagge${letzt?"":" alt"}${Z.geerbt?" erbt":""}" style="left:${XD(e.d+1)}px"',
                '        bar+=`<div class="flagge${letzt?"":" alt"}${Z.geerbt?" erbt":""}"${letzt&&!Z.geerbt?` data-zieh="${esc(f.id)}" data-d="${e.d}"`:""} style="left:${XD(e.d+1)}px"')
 E = ersetze(E, '      h+=`<div class="raute ${kl}" data-feld="${esc(P.id)}" style=', '      h+=`<div class="raute ${kl}" data-feld="${esc(P.id)}" data-zieh="${esc(P.id)}" data-d="${e.d}" style=')
 E = ersetze(E, '  planJetzt();\n}\nfunction planJetzt(){', '  planJetzt(); if(ED()) ED().planGezeichnet(planKoerper,PLAN);\n}\nfunction planJetzt(){')
 
-# Fertig-Zeitpunkt minutengenau (fertig_um): wer nach 16:00 am Entscheidungstag abhakt, rettet das Gebäude nicht mehr
+# completion time to the minute (fertig_um): whoever ticks off after 16:00 on the hand-in day no longer saves the building
 E = ersetze(E, '''  let t=-Infinity, fertig=false;
   for(const f of liste){ if(f.status!=="fertig"&&f.status!=="verworfen") return null;
     const s=tag(f.seit); t=Math.max(t,s==null?-Infinity:s); if(f.status==="fertig") fertig=true; }
@@ -86,7 +86,7 @@ E = ersetze(E, '''  let t=-Infinity, fertig=false;
 E = ersetze(E, 'Z.eMs=Z.erledigt?(Z.erledigt.tag===-Infinity?-Infinity:lokal(Z.erledigt.tag,12)):Infinity;', 'Z.eMs=Z.erledigt?(Z.erledigt.tag===-Infinity?-Infinity:Z.erledigt.ms):Infinity;')
 E = ersetze(E, 'if(E&&Z.eMs<e.bis&&E.tag<=P.d+1)', 'if(E&&Z.eMs<e.bis&&E.tag<=P.d+1&&Z.eMs<=P.T)')
 
-# Seitenleiste einklappen: nur die Welt sehen (Knopf am Rand der Leiste, Taste P)
+# collapse the sidebar: see only the world (button at the edge of the sidebar, key P)
 SCHON_PANEL = 'panelGriff' in html
 if not SCHON_PANEL: E = ersetze(E, 'const PANEL_W=452;', 'const PANEL_BREIT=452; let PANEL_W=lies("welt-panel-zu")==="1"?0:PANEL_BREIT;')
 if not SCHON_PANEL: E = ersetze(E, 'groesse(); alleZeigen();', '''function setzePanel(zu){
@@ -106,7 +106,7 @@ markup = re.sub(r'<div class="umschalter".*?</div>\n', '', markup, flags=re.S)
 markup = re.sub(r'<section id="arch">.*?</section>\n', '', markup, flags=re.S)
 assert 'id="arch"' not in markup
 
-# Mermaid-/Architektur-Code braucht Elemente, die es nicht mehr gibt: leere Platzhalter
+# Mermaid/architecture code needs elements that no longer exist: empty placeholders
 markup += '<div hidden><div id="umschalter"></div><div id="arch"><div id="arch-text"></div><div id="arch-bild"></div></div></div>\n'
 
 css += (HIER / "src" / "zusatz.css").read_text(encoding="utf-8")
@@ -128,9 +128,9 @@ shutil.copy(QUELLE / "lib" / "three.min.js", DIST / "three.min.js")
 shutil.copytree(QUELLE / "lib" / "fonts", DIST / "fonts")
 shutil.copy(HIER / "src" / "THIRD_PARTY_NOTICES.md", DIST / "THIRD_PARTY_NOTICES.md")
 shutil.copy(HIER / "src" / "LICENSE", DIST / "LICENSE")
-print("gebaut:", sorted(str(p.relative_to(DIST)) for p in DIST.rglob("*") if p.is_file()))
+print("built:", sorted(str(p.relative_to(DIST)) for p in DIST.rglob("*") if p.is_file()))
 
-# Demo-Welt der Repo-Fassung aus derselben Beispielwelt (eine Quelle: examples/demo.js)
+# demo world of the repo version from the same example world (one source: examples/demo.js)
 import subprocess, sys
 ziele = [QUELLE / "world-demo.js"]
 subprocess.run([sys.executable, str(HIER / "build_repo_demo.py"), *map(str, ziele)], check=True)

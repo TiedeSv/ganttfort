@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Baut aus dist/ eine einzige HTML-Datei (Ein-Datei-Fassung).
+"""Builds a single HTML file from dist/ (single-file version).
 
-Alles steckt in der Datei: three.js, Motor, App, Thema, Beispielwelt, Stile und die Schriften.
-Die Datei lädt nichts aus dem Internet (keine Google Fonts, kein CDN). Gedacht für das Artifact
-im claude.ai-Chat (dort ist nur eine Datei erlaubt) und als Download zum lokalen Öffnen.
+Everything is inside the file: three.js, engine, app, theme, example world, styles and the fonts.
+The file loads nothing from the internet (no Google Fonts, no CDN). Meant as a download to open locally
+and for places where only one file is allowed.
 
-Aufruf: python3 build_single_file.py [ziel.html]   (Standard: dist/single/ganttfort.html)
+Usage: python3 build_single_file.py [target.html]   (default: dist/single/ganttfort.html)
 """
 import base64, pathlib, re, sys
 
@@ -17,7 +17,7 @@ THREE_LIZENZ = LIB / "three-LICENSE.txt"
 FONTS = HIER / "src" / "fonts"
 ZIEL = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else HIER / "dist" / "single" / "ganttfort.html"
 
-SCHRIFTEN = [  # (Familie, Gewicht, Datei)
+SCHRIFTEN = [  # (family, weight, file)
     ("Space Grotesk", 500, "space-grotesk-latin-500-normal.woff2"),
     ("Space Grotesk", 600, "space-grotesk-latin-600-normal.woff2"),
     ("Inter", 400, "inter-latin-400-normal.woff2"),
@@ -35,7 +35,7 @@ def lies(p):
 
 
 def sicher(js):
-    """Inhalt darf ein umgebendes <script> nicht vorzeitig schließen."""
+    """Content must not close a surrounding <script> early."""
     return js.replace("</script", "<\\/script").replace("<!--", "<\\!--")
 
 
@@ -52,25 +52,25 @@ def main():
     thema = lies(DIST / "themes" / "medieval.js")
     three = lies(THREE)
 
-    # Schriften nicht mehr von Google laden
+    # no longer load fonts from Google
     thema = re.sub(r'schrift:\s*"https://fonts\.googleapis\.com[^"]*"', 'schrift:""', thema)
-    assert "fonts.googleapis.com" not in thema, "Thema lädt noch Google Fonts"
+    assert "fonts.googleapis.com" not in thema, "theme still loads Google Fonts"
     faces = "".join(
         f'@font-face{{font-family:"{fam}";font-style:normal;font-weight:{w};font-display:swap;'
         f'src:url(data:font/woff2;base64,{base64.b64encode((FONTS / f).read_bytes()).decode()}) format("woff2")}}\n'
         for fam, w, f in SCHRIFTEN)
 
-    # Lader in app.js: Thema und Motor aus eingebetteten Blöcken statt aus Dateien
+    # loader in app.js: theme and engine from embedded blocks instead of files
     alt_thema = 's.src = "themes/" + datei + ".js"; s.onload = ok; s.onerror = ok; document.head.appendChild(s);'
     neu_thema = ('const q = document.getElementById("gf-theme-" + datei); '
                  'if (q) { s.textContent = q.textContent; document.head.appendChild(s); ok(); } '
                  'else { s.src = "themes/" + datei + ".js"; s.onload = ok; s.onerror = ok; document.head.appendChild(s); }')
     alt_motor = 's.src = "world-engine.js";'
     neu_motor = 's.textContent = document.getElementById("gf-motor").textContent;'
-    assert app.count(alt_thema) == 1 and app.count(alt_motor) == 1, "Lader in app.js nicht gefunden"
+    assert app.count(alt_thema) == 1 and app.count(alt_motor) == 1, "loader in app.js not found"
     app = app.replace(alt_thema, neu_thema).replace(alt_motor, neu_motor)
 
-    # Hülle: externe Verweise raus
+    # shell: remove external references
     html = re.sub(r'<link rel="preconnect"[^>]*>\n?', "", html)
     html = re.sub(r'<link rel="stylesheet" href="https://fonts\.googleapis\.com[^>]*>\n?', "", html)
     html = re.sub(r'<link rel="stylesheet" href="fonts/fonts\.css"[^>]*>\n?', "", html)   # faces are inlined below
@@ -84,7 +84,7 @@ def main():
                '<script type="text/plain" id="gf-motor">' + sicher(motor) + "</script>\n")
     html = html.replace('<script charset="utf-8" src="app.js"></script>', bloecke + "<script>" + sicher(app) + "</script>")
     assert 'src="' not in re.sub(r"<script>.*?</script>|<script type=\"text/plain\".*?</script>", "", html, flags=re.S), \
-        "noch ein externer Verweis in der Hülle"
+        "still an external reference in the shell"
 
     lizenzen = (
         "Ganttfort – single-file version\n\n"

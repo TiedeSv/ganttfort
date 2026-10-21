@@ -1,4 +1,4 @@
-Schriften der Projektwelt (geladen von Google Fonts; beim Einbetten in eine Datei gilt dieser Hinweis):
+Fonts used by Ganttfort (shipped as woff2 files and embedded in the single-file version):
 
 - Space Grotesk: Copyright 2020 The Space Grotesk Project Authors (https://github.com/floriankarsten/space-grotesk)
 - Inter: Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter)
