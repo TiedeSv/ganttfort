@@ -149,6 +149,8 @@ shell = ersetze(shell, '<script charset="utf-8" src="three.min.js"></script>',
 notes = (CLAUDE / "THIRD_PARTY_NOTICES.md").read_text(encoding="utf-8")
 notes = ersetze(notes, "| MIT | `three.min.js`, shipped with the Artifact |", "| MIT | loaded at runtime from cdn.jsdelivr.net |")
 notes = ersetze(notes, "| SIL Open Font License 1.1 | `fonts/*.woff2`, shipped with the Artifact |", "| SIL Open Font License 1.1 | loaded at runtime from Google Fonts |")
+notes = ersetze(notes, "Fonts used by Ganttfort (shipped as woff2 files and embedded in the single-file version):",
+                "Fonts used by Ganttfort (this version loads them from Google Fonts; the offline versions ship them as woff2 files):")
 (CLAUDE / "THIRD_PARTY_NOTICES.md").write_text(notes, encoding="utf-8")
 print("built: dist/claude (for claude.ai Artifacts)")
 
