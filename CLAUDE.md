@@ -51,7 +51,8 @@ Then check visually:
 Quality rule for anything visible (buildings, units, landscape): look at it from 3–4 sides up close, and **with houses around it** (age 12 and 25 days). Check for floating parts, parts outside the hex (flat side at 0.87 · radius), twisted beams, hidden gables, overlaps, figures not facing their work, unintended readings (e.g. a crane that looks like a gallows). Only report done when it is clean.
 
 ## Release checklist
-1. Set the new version in `VERSION` (e.g. `0.2.0`), update the roadmap below, commit, push; wait until the *Build* workflow is green.
+1. Set the new version in `VERSION` (e.g. `0.2.0`), move the *Unreleased* entries in `CHANGELOG.md` under the new version
+   with today's date, update the roadmap below, commit, push; wait until the *Build* workflow is green.
 2. Publish a GitHub release with the tag `v` + `VERSION` (e.g. `v0.2.0`). `release.yml` refuses a tag that does not match,
    attaches `ganttfort.html`, `ganttfort-template.zip` and `ganttfort-skill.zip`, and `pages.yml` updates the live demo.
 3. **Keep the maintainer's claude.ai Artifacts current** (*Ganttfort*, *Ganttfort Roadmap*, *Ganttfort Tour*): they are copies,

@@ -1,0 +1,26 @@
+name: Idea
+description: A new building, a feature or something that could be better.
+labels: ["idea"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: What should Ganttfort do or show?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why would it help?
+      description: Which situation in your project would it make easier or more fun?
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is it about?
+      options:
+        - A building or unit in the world
+        - Deadlines, attacks, project plan
+        - Working with an AI agent (commands, skill)
+        - Claude Artifact
+        - Something else

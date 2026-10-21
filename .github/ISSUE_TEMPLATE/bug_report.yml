@@ -1,0 +1,51 @@
+name: Bug report
+description: Something looks wrong, breaks or behaves unexpectedly.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please leave out real project data – a made-up example is enough.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you see, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the live demo
+        2. Click on …
+        3. …
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where does it happen?
+      options:
+        - Live demo / ganttfort.html
+        - Repository version (world.html with an AI agent)
+        - Claude Artifact (claude.ai)
+        - Skill / commands
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Ganttfort version
+      description: Shown in the Artifact under the tab *Project*, in the repo in `.ai/ganttfort/VERSION`.
+      placeholder: "0.1.0"
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and operating system
+      placeholder: "Firefox 131 on Windows 11"
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshot or console output
+      description: A screenshot helps a lot. Errors from the browser console (F12) too.
