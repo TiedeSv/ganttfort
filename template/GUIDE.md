@@ -107,7 +107,8 @@ Clicking a box jumps to that place on the map.
 
 **Rearrange:** Button *Rearrange* in the bar at the bottom (or **B**). Then drag a finished building with the left mouse button and drop it on another tile
 **of the same island**: green frame = fits, red = not possible. On a landscape tile the building moves there,
-on another finished building the two swap places. Building sites and planned work stay where the agent puts them.
+on another finished building the two swap places. Castles (milestones) can always be moved, cathedrals (large packages)
+once all their tasks are done. Building sites, planned work and burned ruins stay where they are.
 The browser remembers the layout (per building), so it survives every `/world-update`. *Reset layout* puts everything back.
 
 **Where the islands lie:** Every island keeps its own direction from the middle, taken from its position in the file: the first island sits in the centre, each next one in a fixed direction around it. When an island grows, the others only move further out along their direction, so the overall picture stays the same and only the gaps change. Add new areas at the end of `regions`; inserting one in the middle shifts the directions of all areas after it.

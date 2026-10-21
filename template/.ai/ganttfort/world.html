@@ -361,7 +361,7 @@ body.hilfe-offen .hilfe{display:block} body.panel-zu .hilfe{right:32px}
 <div class="tip" id="tip"></div>
 <div class="legkarte" id="legKarte" role="dialog" aria-label="Legende"><button class="leg-zu" id="legZu" title="Schließen (Esc)">×</button><div class="leg-inhalt" id="legInhalt"></div></div>
 <div class="plan" id="plan"><div class="plan-kopf"><div class="plan-leg"><span><i class="lb in_arbeit"></i>Baustelle</span><span><i class="lb fertig"></i>fertig</span><span><i class="lb soll"></i>laut Plan</span><span><i class="lb droh"></i>Angriffsfenster</span><span><i class="lf"></i>Frist</span><span><i class="lr"></i>Meilenstein</span></div></div><div class="plan-koerper" id="planKoerper"></div></div>
-<div class="hint umbau-hint">Umbauen · fertiges oder verworfenes Feld <kbd>ziehen</kbd> und auf der Insel ablegen · <kbd>B</kbd> fertig</div>
+<div class="hint umbau-hint">Umbauen · fertiges Feld, Kathedrale oder Burg <kbd>ziehen</kbd> und auf der Insel ablegen · <kbd>B</kbd> fertig</div>
 <section id="arch">
   <div class="arch-kopf">
     <div class="lage"><h2>Wie es gerade aussieht</h2><div id="arch-text"></div></div>
@@ -2031,7 +2031,9 @@ regionen.forEach((reg,i)=>{
 /* ---------- Own arrangement: finished buildings you moved yourself ---------- */
 const ANORD_KEY="welt-anordnung-"+((W.meta&&W.meta.projekt)||"welt");
 let ANORDNUNG={}; try{ ANORDNUNG=JSON.parse(lies(ANORD_KEY)||"{}")||{}; }catch(e){ ANORDNUNG={}; }
-const verschiebbar=f=>!!f&&(f.status==="fertig"||f.status==="verworfen")&&!f._ruine&&!f._ms;
+// a large building (cathedral) is finished when all its tasks are done (dropped ones do not count)
+const klammerFertig=P=>{ const L=(P._liste||[]).filter(f=>f.status!=="verworfen"); return L.length>0&&L.every(f=>f.status==="fertig"); };
+const verschiebbar=f=>!!f&&!f._ruine&&(f._ms?true:f._pk?klammerFertig(f):(f.status==="fertig"||f.status==="verworfen"));   // castles (milestones) always, cathedrals once finished
 const zielOk=v=>!!v&&(v.natur||verschiebbar(v.feld));
 function tauscheZellen(A,B){ const t={feld:A.feld,natur:A.natur,art:A.art}; A.feld=B.feld; A.natur=B.natur; A.art=B.art; B.feld=t.feld; B.natur=t.natur; B.art=t.art; }
 regionen.forEach(reg=>Object.entries(ANORDNUNG).forEach(([id,key])=>{
@@ -2910,7 +2912,7 @@ function hoverUpdate(){
   const t=treffer(maus.x,maus.y); hover=t;
   cv.style.cursor=t?(umbau&&greifbar(t)?"move":umbau?"not-allowed":"pointer"):"grab";
   if(!t){tip.style.opacity=0;return;}
-  if(umbau){ tip.innerHTML=esc(t.feld.titel)+`<small>${greifbar(t)?"Ziehen, um es zu verschieben":ANZEIGE<D_STAND?"Im Zeitraffer nicht verschiebbar":t.feld._ruine?"Brandruinen bleiben, wo sie stehen":"Nur fertige und verworfene Felder lassen sich verschieben"}</small>`;
+  if(umbau){ tip.innerHTML=esc(t.feld.titel)+`<small>${greifbar(t)?"Ziehen, um es zu verschieben":ANZEIGE<D_STAND?"Im Zeitraffer nicht verschiebbar":t.feld._ruine?"Brandruinen bleiben, wo sie stehen":"Nur fertige und verworfene Felder, fertige Kathedralen und Burgen lassen sich verschieben"}</small>`;
     tip.style.transform=`translate(${maus.x+14}px,${maus.y+14}px)`; tip.style.opacity=1; return; }
   if(t.feld._ruine&&t.status==="ruine"){ const R=t.feld._ruine; tip.innerHTML=`Brandruine · ${esc(t.feld.titel)}<small>abgebrannt ${esc(kurzDatum(tagVon(R.T)))} · ${RUIN_NAME[ruinStufe((ZEIT-R.T-NEUBAU)/864e5)]}</small>`;
     tip.style.transform=`translate(${maus.x+14}px,${maus.y+14}px)`; tip.style.opacity=1; return; }
@@ -2940,7 +2942,7 @@ leerPlatz.add(new THREE.Mesh(GEO.tileBody,new THREE.MeshStandardMaterial({color:
 leerPlatz.add(new THREE.Mesh(GEO.tileTop.clone().translate(0,-.02,0),new THREE.MeshStandardMaterial({color:0x39414a,roughness:1})));
 const lpRand=new THREE.Mesh(hexRing(.9,.95),new THREE.MeshBasicMaterial({color:0x6f8aa6,transparent:true,opacity:.5,depthWrite:false})); lpRand.position.y=-.03; leerPlatz.add(lpRand);
 leerPlatz.visible=false; scene.add(leerPlatz);
-const greifbar=t=>ANZEIGE>=D_STAND&&(t.status==="fertig"||t.status==="verworfen")&&verschiebbar(t.feld);
+const greifbar=t=>ANZEIGE>=D_STAND&&["fertig","verworfen","paket","meilenstein"].includes(t.status)&&verschiebbar(t.feld);
 function zelleVon(f){ for(const v of f._reg._lokal.values()) if(v.feld===f) return v; return null; }
 function zellPos(reg,v){ const [x,z]=hpos(hadd(reg._z,v.h)); return new THREE.Vector3(x,0,z); }
 function umzugStart(tl){
@@ -3830,7 +3832,7 @@ if(VORSCHAU){
   const vu=new THREE.Clock(); (function lauf(){ const t=vu.getElapsedTime(); ANIM.forEach(a=>a.fn(t)); WIND.zeit.value=t; vw(t); vr.render(vs,vc); requestAnimationFrame(lauf); })();
 }else{
 baueMarker(); panel(); setzePlan(planOffen); schleife();
-if(/[?&]debug(&|=|$)/.test(location.search)) window.__gf={renderer,scene,ANIM,ANSICHT,regionen,cam,marker:()=>marker,zeitSetzen:D=>zeitSetzen(D),D_MIN,D_HEUTE};   // for measuring only
+if(/[?&]debug(&|=|$)/.test(location.search)) window.__gf={renderer,scene,camera,ANIM,ANSICHT,regionen,cam,tiles,marker:()=>marker,zeitSetzen:D=>zeitSetzen(D),D_MIN,D_HEUTE};   // for measuring only
 }
 window.__welt={PAKETE,KRIT,aktZelle,zeitMs:()=>ZEIT,ZIELE,lage,wiederhole,ereignisse,zeitSetzen,setzePlan,MS_FELDER,ANSICHT,SPUR,cam,tiles,waehle,treffer,setzeUmbau,regionen,screen:(v)=>{const p=v.clone().project(camera);return [(p.x+1)/2*innerWidth,(1-p.y)/2*innerHeight];},zelle:(reg,v)=>zellPos(reg,v)};
 })();
