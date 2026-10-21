@@ -73,7 +73,7 @@ Tasks are buildings on islands (regions). A deadline brings attackers: scouts (2
 | UI texts English by default, German switchable (`meta.lang`) | 10.10. | done 05.10. (`i18n.js`, `i18n-en.js`) |
 | English README, guide, agent rules, prompts | 10.10. | done 05.10.; code comments translated 21.10. |
 | One skill for Claude Code and claude.ai chat | 11.10. | done 06.10.: `skill/SKILL.md` → `release/ganttfort-skill.zip` (repo setup, new Artifact, change a world, update an Artifact, repo ↔ Artifact). Still to try once on claude.ai. The old `projektwelt` skill expects the German format – do not use it any more. |
-| Public repo (license, README, sponsor links, releases) | 13.10. | prepared 21.10.: README with screenshot, `.github/FUNDING.yml` (GitHub Sponsors; Ko-fi name still missing), release and build workflows, `build/check_release.py`. Open: create the GitHub repo, push, enable Pages and Sponsors, publish v0.1.0. |
+| Public repo (license, README, sponsor links, releases) | 13.10. | done 21.10.: public repo TiedeSv/ganttfort, release v0.1.0, Pages live demo; support via Ko-fi (`ko-fi.com/ganttfort`, `.github/FUNDING.yml`). GitHub Sponsors left out for now (profile not approved). |
 | Tour world as public live demo | 14.10. | ready 21.10.: `pages.yml` publishes `build/dist/tour/` to GitHub Pages on every release (works offline, EN + `?lang=de`). Open: first release. |
 
 The roadmap is also kept as a Ganttfort world in a claude.ai Artifact owned by the maintainer; update it from a claude.ai session, not from here.

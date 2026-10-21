@@ -83,7 +83,7 @@ and in `build/dist/` the Claude Artifact version and the tour. To try the repo v
 
 ## Support
 
-Ganttfort is free. If it helps you, you can support it via [GitHub Sponsors](https://github.com/sponsors/TiedeSv).
+Ganttfort is free. If it helps you, you can [buy it a stone on Ko-fi](https://ko-fi.com/ganttfort) – every tip goes into new buildings.
 
 ## License
 
