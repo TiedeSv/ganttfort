@@ -1,8 +1,21 @@
-<img src="docs/icon.svg" alt="" width="120" align="right">
+<p align="center"><img src="docs/icon.svg" alt="" width="128"></p>
 
-# Ganttfort
+<h1 align="center">Ganttfort</h1>
 
-*Your project plan as a fortified world.*
+<p align="center"><em>Your project plan as a fortified world.</em></p>
+
+<p align="center">
+  <a href="https://github.com/TiedeSv/ganttfort/releases/latest"><img src="https://img.shields.io/github/v/release/TiedeSv/ganttfort?color=e8b85a&label=release" alt="Latest release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/TiedeSv/ganttfort?color=e8b85a" alt="MIT license"></a>
+  <a href="https://tiedesv.github.io/ganttfort/"><img src="https://img.shields.io/badge/live_demo-play-a6d46a" alt="Live demo"></a>
+  <a href="https://ko-fi.com/ganttfort"><img src="https://img.shields.io/badge/Ko--fi-buy_a_stone-e8604a?logo=ko-fi&logoColor=white" alt="Support on Ko-fi"></a>
+</p>
+
+<p align="center">
+  <a href="https://tiedesv.github.io/ganttfort/"><b>▶ Try the live demo</b></a> ·
+  <a href="https://github.com/TiedeSv/ganttfort/releases/latest">Download</a> ·
+  <a href="template/GUIDE.md">Guide</a>
+</p>
 
 Ganttfort turns a project plan into a 3D medieval island world. Every task is a building, every area of the project an
 island, every deadline a wave of attackers. Finish in time and the attackers are beaten back; miss the hand-in and the
@@ -10,20 +23,31 @@ building burns down – the ruin stays, and slowly grows over.
 
 ![The example world "Harbor Town App": seven islands, building sites, a castle, a war airship at the island edge, and the status panel](docs/screenshot.jpg)
 
-**Live demo with a guided tour:** <https://tiedesv.github.io/ganttfort/> (English; add `?lang=de` for German)
+The live demo comes with a guided tour through every feature (English; add `?lang=de` for German).
 
 ## How it works
 
-- **Tasks are buildings.** The kind of work decides the building: a farmstead for a new feature, a smithy for a fix,
-  a scriptorium for docs, an observatory for research. Planned tasks are building plots, started ones building sites.
-- **Deadlines bring attackers.** *Deadline ahead* (scouts circle), *Final stretch* (a war airship anchors at the island
-  edge), *Due today* (siege), *Overdue* (battle), and the **hand-in at 16:00 on the day after the deadline**.
-  Done by then: the attackers are beaten back. Otherwise the building burns down.
+### Every kind of work has its building
+
+Planned tasks are building plots, started ones building sites with scaffolding and a crane. A finished task becomes a
+building, and the kind of work decides which one:
+
+![Ten buildings, one per kind of work: farmstead (feature), smithy (bugfix), windmill (refactor), watchtower (tests), zeppelin field (infrastructure), scriptorium (docs), observatory (research), alchemist's tower (experiment), stonemason's lodge (typing), granary (pipeline)](docs/buildings.jpg)
+
+Old work gets lived in: finished buildings attract houses over the weeks. Milestones are castles, large packages are
+churches that grow into a cathedral with every finished task.
+
+### Deadlines bring attackers
+
+A deadline is a wave of attackers that comes closer day by day. The **hand-in is at 16:00 on the day after the deadline**:
+done by then, the attackers are beaten back; otherwise the building burns down.
+
+![The six stages of a deadline: scouts circle (Deadline ahead), a war airship anchors at the island edge (Final stretch), siege on the due day (Due today), battle on the day after (Overdue), a burning ruin when the hand-in is missed, and a victory banner when the task is done in time](docs/deadline-phases.jpg)
+
 - **Moving a deadline is allowed – but visible.** Before *Deadline ahead* it is free; afterwards the attackers leave
   their siege gear behind.
-- **Milestones are castles, large packages are churches** that grow into a cathedral with every finished task.
-- **Old work gets lived in.** Finished buildings attract houses over the weeks.
-- **A project plan comes with it:** a Gantt chart with dependencies, the critical path and every move of a deadline.
+- **A project plan comes with it:** a Gantt chart with dependencies, the critical path and every move of a deadline,
+  plus a time-lapse slider to watch the world grow.
 
 Everything runs locally in the browser. Nothing is sent anywhere.
 
