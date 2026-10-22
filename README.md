@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://github.com/TiedeSv/ganttfort/releases/latest"><img src="https://img.shields.io/github/v/release/TiedeSv/ganttfort?color=e8b85a&label=release" alt="Latest release"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/TiedeSv/ganttfort?color=e8b85a" alt="MIT license"></a>
-  <a href="https://tiedesv.github.io/ganttfort/"><img src="https://img.shields.io/badge/live_demo-play-a6d46a" alt="Live demo"></a>
+  <a href="https://tiedesv.github.io/ganttfort/"><img src="https://img.shields.io/badge/demo-live-a6d46a" alt="Live demo"></a>
   <a href="https://ko-fi.com/ganttfort"><img src="https://img.shields.io/badge/Ko--fi-buy_a_stone-e8604a?logo=ko-fi&logoColor=white" alt="Support on Ko-fi"></a>
 </p>
 
